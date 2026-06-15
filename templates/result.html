@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generated Material | LessonForge AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <main class="page-container">
+    <section class="hero no-print">
+      <h1>Your New {{ material_type }}</h1>
+      <p>
+        Review the overview below, then copy, edit, or save the generated content as a PDF.
+      </p>
+    </section>
+
+    <section class="form-card">
+      <div class="result-overview">
+        <h2>Assignment Overview</h2>
+
+        <p><strong>Grade Level:</strong> {{ grade_level }}</p>
+        <p><strong>Subject:</strong> {{ subject }}</p>
+        <p><strong>Topic:</strong> {{ topic }}</p>
+        <p><strong>Material Type:</strong> {{ material_type }}</p>
+        <p><strong>Difficulty:</strong> {{ difficulty }}</p>
+      </div>
+
+      <div class="copy-actions no-print">
+        <button type="button" onclick="copyGeneratedText()">Copy Generated Text</button>
+        <button type="button" onclick="saveAsPDF()">Save as PDF</button>
+        <a href="/" class="secondary-button">Create Another</a>
+      </div>
+
+      <div class="generated-output">
+        <h2>Generated Content</h2>
+
+        <div id="generatedText" class="rendered-output">
+          {{ generated_html|safe }}
+        </div>
+
+        <textarea id="rawGeneratedText" style="display: none;">{{ generated_text }}</textarea>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function copyGeneratedText() {
+      const text = document.getElementById("rawGeneratedText").value;
+
+      navigator.clipboard.writeText(text).then(function() {
+        alert("Generated text copied to clipboard.");
+      }).catch(function() {
+        alert("Copy failed. You can still highlight the text manually.");
+      });
+    }
+
+    function saveAsPDF() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
