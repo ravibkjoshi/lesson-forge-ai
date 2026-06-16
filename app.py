@@ -61,8 +61,6 @@ def build_generation_prompt(form_data):
                     f"Estimated Class Time: {form_data.get('lesson_length')}",
             f"Learning Objective: {form_data.get('learning_objective') or 'Generate an appropriate learning objective based on the topic.'}",
             f"Include Warm-Up / Do Now: {form_data.get('include_warmup')}",
-            f"Include Exit Ticket: {form_data.get('include_exit_ticket')}",
-            f"Standards Alignment: {form_data.get('standards_alignment')}",
             "",
             "Format the lesson plan with sections for overview, learning objective, materials, warm-up if requested, direct instruction, guided practice, independent practice, assessment, exit ticket if requested, and teacher notes.",
             "",
