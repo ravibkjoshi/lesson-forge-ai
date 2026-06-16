@@ -7,140 +7,159 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <main class="page-container">
+  <main class="page-container result-page">
     <section class="hero no-print">
+      <p class="eyebrow">Generated Material</p>
       <h1>Your New {{ material_type }}</h1>
       <p>
-        Review the overview below, then copy, edit, or save the generated content as a PDF.
+        Review the output below, copy the version you need, or save a clean PDF.
       </p>
     </section>
 
-    <section class="form-card">
-      <div class="result-overview">
-        <h2>Assignment Overview</h2>
+    <section class="form-card result-card">
+      <div class="result-overview no-print">
+        <div>
+          <p class="section-label">Assignment Overview</p>
+          <h2>{{ topic }}</h2>
+        </div>
 
-        <p><strong>Grade Level:</strong> {{ grade_level }}</p>
-        <p><strong>Subject:</strong> {{ subject }}</p>
-        <p><strong>Topic:</strong> {{ topic }}</p>
-        <p><strong>Material Type:</strong> {{ material_type }}</p>
-        <p><strong>Difficulty:</strong> {{ difficulty }}</p>
+        <div class="overview-grid">
+          <p><span>Grade</span><strong>{{ grade_level }}</strong></p>
+          <p><span>Subject</span><strong>{{ subject }}</strong></p>
+          <p><span>Type</span><strong>{{ material_type }}</strong></p>
+          <p><span>Difficulty</span><strong>{{ difficulty }}</strong></p>
+        </div>
       </div>
 
-<div class="copy-actions no-print">
-  {% if has_answer_key_document and answer_key_text %}
-    <button type="button" onclick="copyTextById('studentMaterialText')">
-      Copy Student Version
-    </button>
+      <div class="copy-actions no-print">
+        {% if has_answer_key_document and answer_key_text %}
+          <button class="button-primary" type="button" onclick="copyTextById('studentMaterialText')">
+            Copy Student Version
+          </button>
 
-    <button type="button" onclick="copyTextById('answerKeyText')">
-      Copy Answer Key
-    </button>
+          <button class="button-secondary" type="button" onclick="copyTextById('answerKeyText')">
+            Copy Answer Key
+          </button>
 
-    <button type="button" onclick="printSection('Student Version', 'studentMaterialDisplay')">
-      Save Student Version as PDF
-    </button>
+          <button class="button-secondary" type="button" onclick="printSection('Student Version', 'studentMaterialDisplay')">
+            Save Student PDF
+          </button>
 
-    <button type="button" onclick="printSection('Answer Key', 'answerKeyDisplay')">
-      Save Answer Key as PDF
-    </button>
-  {% else %}
-    <button type="button" onclick="copyTextById('studentMaterialText')">
-      Copy Generated Text
-    </button>
+          <button class="button-secondary" type="button" onclick="printSection('Answer Key', 'answerKeyDisplay')">
+            Save Answer Key PDF
+          </button>
+        {% else %}
+          <button class="button-primary" type="button" onclick="copyTextById('studentMaterialText')">
+            Copy Generated Text
+          </button>
 
-    <button type="button" onclick="printSection('Generated Material', 'studentMaterialDisplay')">
-      Save as PDF
-    </button>
-  {% endif %}
+          <button class="button-secondary" type="button" onclick="printSection('Generated Material', 'studentMaterialDisplay')">
+            Save as PDF
+          </button>
+        {% endif %}
 
-  <form action="/generate" method="POST" class="regenerate-form">
-    {% for key, value in form_data.items() %}
-      <input type="hidden" name="{{ key }}" value="{{ value }}">
-    {% endfor %}
-    <button type="submit">Regenerate</button>
-  </form>
+        <form action="/generate" method="POST" class="regenerate-form">
+          {% for key, value in form_data.items() %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+          {% endfor %}
+          <button class="button-secondary" type="submit">Regenerate</button>
+        </form>
 
-  <a href="/" class="secondary-button">Create Another</a>
-  </div>
-<div class="generated-output">
-  {% if has_answer_key_document and answer_key_text %}
-    <h2>Student Version</h2>
-  {% else %}
-    <h2>Generated Content</h2>
-  {% endif %}
-
-  <div id="studentMaterialDisplay" class="rendered-output">
-    {{ generated_html|safe }}
-  </div>
-
-  {% if has_answer_key_document and answer_key_text %}
-    <div class="answer-key-preview no-print">
-      <h2>Answer Key</h2>
-
-      <div id="answerKeyDisplay" class="rendered-output">
-        {{ answer_key_html|safe }}
+        <a href="/" class="secondary-button">Create Another</a>
       </div>
-    </div>
-  {% endif %}
 
-  <textarea id="studentMaterialText" class="hidden-copy-source">{{ student_material_text }}</textarea>
-  <textarea id="answerKeyText" class="hidden-copy-source">{{ answer_key_text }}</textarea>
-</div>
+      <div class="generated-output">
+        <div class="output-header">
+          {% if has_answer_key_document and answer_key_text %}
+            <div>
+              <p class="section-label">Printable Student Copy</p>
+              <h2>Student Version</h2>
+            </div>
+          {% else %}
+            <div>
+              <p class="section-label">Generated Output</p>
+              <h2>Generated Content</h2>
+            </div>
+          {% endif %}
+        </div>
+
+        <div id="studentMaterialDisplay" class="rendered-output">
+          {{ generated_html|safe }}
+        </div>
+
+        {% if has_answer_key_document and answer_key_text %}
+          <div class="answer-key-preview no-print">
+            <div class="output-header">
+              <div>
+                <p class="section-label">Teacher Copy</p>
+                <h2>Answer Key</h2>
+              </div>
+            </div>
+
+            <div id="answerKeyDisplay" class="rendered-output answer-key-output">
+              {{ answer_key_html|safe }}
+            </div>
+          </div>
+        {% endif %}
+
+        <textarea id="studentMaterialText" class="hidden-copy-source">{{ student_material_text }}</textarea>
+        <textarea id="answerKeyText" class="hidden-copy-source">{{ answer_key_text }}</textarea>
+      </div>
     </section>
   </main>
 
-<script>
-  // Copies text from a hidden textarea.
-  // This lets us copy either the student version or the answer key.
-  function copyTextById(elementId) {
-    const text = document.getElementById(elementId).value;
+  <script>
+    // Copies text from a hidden textarea.
+    // This lets us copy either the student version or the answer key.
+    function copyTextById(elementId) {
+      const text = document.getElementById(elementId).value;
 
-    navigator.clipboard.writeText(text).then(function() {
-      alert("Text copied to clipboard.");
-    }).catch(function() {
-      alert("Copy failed. You can still highlight the text manually.");
-    });
-  }
-
-  // Opens a small print window with only the selected section.
-  // This lets teachers save the student version and answer key as separate PDFs.
-  function printSection(title, elementId) {
-    const content = document.getElementById(elementId).innerHTML;
-    const printWindow = window.open("", "_blank");
-
-    if (!printWindow) {
-      alert("Please allow pop-ups so the PDF window can open.");
-      return;
+      navigator.clipboard.writeText(text).then(function() {
+        alert("Text copied to clipboard.");
+      }).catch(function() {
+        alert("Copy failed. You can still highlight the text manually.");
+      });
     }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <title>${title}</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-      </head>
-      <body>
-        <main class="page-container print-page">
-          <section class="form-card print-card">
-            <h1>${title}</h1>
-            <div class="rendered-output">
-              ${content}
-            </div>
-          </section>
-        </main>
-      </body>
-      </html>
-    `);
+    // Opens a small print window with only the selected section.
+    // This lets teachers save the student version and answer key as separate PDFs.
+    function printSection(title, elementId) {
+      const content = document.getElementById(elementId).innerHTML;
+      const printWindow = window.open("", "_blank");
 
-    printWindow.document.close();
-    printWindow.focus();
+      if (!printWindow) {
+        alert("Please allow pop-ups so the PDF window can open.");
+        return;
+      }
 
-    setTimeout(function() {
-      printWindow.print();
-    }, 300);
-  }
-</script>
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <title>${title}</title>
+          <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        </head>
+        <body>
+          <main class="page-container print-page">
+            <section class="form-card print-card">
+              <h1>${title}</h1>
+              <div class="rendered-output">
+                ${content}
+              </div>
+            </section>
+          </main>
+        </body>
+        </html>
+      `);
+
+      printWindow.document.close();
+      printWindow.focus();
+
+      setTimeout(function() {
+        printWindow.print();
+      }, 300);
+    }
+  </script>
 </body>
 </html>

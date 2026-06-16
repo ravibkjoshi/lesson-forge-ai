@@ -8,345 +8,448 @@
 </head>
 <body>
   <main class="page-container">
-    <section class="hero">
-      <h1>LessonForge AI</h1>
+    <section class="hero app-hero">
+      <p class="eyebrow">LessonForge AI</p>
+      <h1>Create classroom-ready materials faster</h1>
       <p>
-        Generate classroom-ready lesson plans, quizzes, tests, homework assignments,
-        study guides, and interactive class activities using AI and reputable sources.
+        Generate lesson plans, quizzes, tests, homework assignments, study guides,
+        discussion questions, and class activities from a structured teacher workflow.
       </p>
+
+      <div class="hero-badges">
+        <span>Teacher-ready</span>
+        <span>Printable</span>
+        <span>Editable</span>
+      </div>
     </section>
 
     <section class="form-card">
-      <form action="/generate" method="POST">
+      <form action="/generate" method="POST" class="material-form">
 
         <!-- Core details: always visible -->
         <div class="form-section">
-          <h2>Core Details</h2>
+          <div class="section-header">
+            <span class="step-pill">1</span>
+            <div>
+              <h2>Core Details</h2>
+              <p class="helper-text">
+                Start with the basics so the generated material matches the class and topic.
+              </p>
+            </div>
+          </div>
 
-          <label for="grade_level">Grade Level</label>
-          <select id="grade_level" name="grade_level" required>
-            <option value="">Select a grade level</option>
-            <option value="Kindergarten">Kindergarten</option>
-            <option value="1st Grade">1st Grade</option>
-            <option value="2nd Grade">2nd Grade</option>
-            <option value="3rd Grade">3rd Grade</option>
-            <option value="4th Grade">4th Grade</option>
-            <option value="5th Grade">5th Grade</option>
-            <option value="6th Grade">6th Grade</option>
-            <option value="7th Grade">7th Grade</option>
-            <option value="8th Grade">8th Grade</option>
-            <option value="9th Grade">9th Grade</option>
-            <option value="10th Grade">10th Grade</option>
-            <option value="11th Grade">11th Grade</option>
-            <option value="12th Grade">12th Grade</option>
-          </select>
+          <div class="form-grid">
+            <div class="field">
+              <label for="grade_level">Grade Level</label>
+              <select id="grade_level" name="grade_level" required>
+                <option value="">Select a grade level</option>
+                <option value="Kindergarten">Kindergarten</option>
+                <option value="1st Grade">1st Grade</option>
+                <option value="2nd Grade">2nd Grade</option>
+                <option value="3rd Grade">3rd Grade</option>
+                <option value="4th Grade">4th Grade</option>
+                <option value="5th Grade">5th Grade</option>
+                <option value="6th Grade">6th Grade</option>
+                <option value="7th Grade">7th Grade</option>
+                <option value="8th Grade">8th Grade</option>
+                <option value="9th Grade">9th Grade</option>
+                <option value="10th Grade">10th Grade</option>
+                <option value="11th Grade">11th Grade</option>
+                <option value="12th Grade">12th Grade</option>
+              </select>
+            </div>
 
-          <label for="subject">Subject</label>
-<select id="subject" name="subject" required>
-  <option value="">Select a subject</option>
-  <option value="History">History</option>
-  <option value="Science">Science</option>
-  <option value="English / Language Arts">English / Language Arts</option>
-  <option value="Math">Math</option>
-  <option value="Social Studies">Social Studies</option>
-  <option id="economics-option" value="Economics">Economics</option>
-  <option id="computer-science-option" value="Computer Science">Computer Science</option>
-</select>
+            <div class="field">
+              <label for="subject">Subject</label>
+              <select id="subject" name="subject" required>
+                <option value="">Select a subject</option>
+                <option value="History">History</option>
+                <option value="Science">Science</option>
+                <option value="English / Language Arts">English / Language Arts</option>
+                <option value="Math">Math</option>
+                <option value="Social Studies">Social Studies</option>
+                <option id="economics-option" value="Economics">Economics</option>
+                <option id="computer-science-option" value="Computer Science">Computer Science</option>
+              </select>
+            </div>
 
-          <label for="topic">Topic</label>
-          <input
-            type="text"
-            id="topic"
-            name="topic"
-            placeholder="Example: The American Revolution, photosynthesis, fractions, supply and demand"
-            required
-          />
+            <div class="field field-wide">
+              <label for="topic">Topic</label>
+              <input
+                type="text"
+                id="topic"
+                name="topic"
+                placeholder="Example: The American Revolution, photosynthesis, fractions, supply and demand"
+                required
+              />
+            </div>
 
-          <label for="material_type">What do you want to generate?</label>
-          <select id="material_type" name="material_type" required>
-            <option value="">Select material type</option>
-            <option value="Lesson Plan">Lesson Plan</option>
-            <option value="Quiz">Quiz</option>
-            <option value="Test">Test</option>
-            <option value="Homework Assignment">Homework Assignment</option>
-            <option value="Study Guide">Study Guide</option>
-            <option value="Discussion Questions">Discussion Questions</option>
-            <option value="Class Activity">Class Activity</option>
-          </select>
+            <div class="field">
+              <label for="material_type">What do you want to generate?</label>
+              <select id="material_type" name="material_type" required>
+                <option value="">Select material type</option>
+                <option value="Lesson Plan">Lesson Plan</option>
+                <option value="Quiz">Quiz</option>
+                <option value="Test">Test</option>
+                <option value="Homework Assignment">Homework Assignment</option>
+                <option value="Study Guide">Study Guide</option>
+                <option value="Discussion Questions">Discussion Questions</option>
+                <option value="Class Activity">Class Activity</option>
+              </select>
+            </div>
 
-          <label for="difficulty">Difficulty Level</label>
-          <select id="difficulty" name="difficulty">
-            <option value="Standard">Standard</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Challenging">Challenging</option>
-          </select>
+            <div class="field">
+              <label for="difficulty">Difficulty Level</label>
+              <select id="difficulty" name="difficulty">
+                <option value="Standard">Standard</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Challenging">Challenging</option>
+              </select>
+            </div>
 
-          <div id="class-time-field">
-  <label for="lesson_length">Estimated Class Time</label>
-  <select id="lesson_length" name="lesson_length">
-    <option value="30 minutes">30 minutes</option>
-    <option value="45 minutes">45 minutes</option>
-    <option value="60 minutes">60 minutes</option>
-    <option value="90 minutes">90 minutes</option>
-    <option value="Multiple class periods">Multiple class periods</option>
-  </select>
-</div>
+            <div class="field" id="class-time-field">
+              <label for="lesson_length">Estimated Class Time</label>
+              <select id="lesson_length" name="lesson_length">
+                <option value="30 minutes">30 minutes</option>
+                <option value="45 minutes">45 minutes</option>
+                <option value="60 minutes">60 minutes</option>
+                <option value="90 minutes">90 minutes</option>
+                <option value="Multiple class periods">Multiple class periods</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <!-- Lesson plan options: only visible for Lesson Plan -->
         <div class="form-section dynamic-section" id="lesson-plan-fields">
-          <h2>Lesson Plan Options</h2>
-          <p class="helper-text">
-            These fields help structure a complete teacher-ready lesson plan.
-          </p>
+          <div class="section-header">
+            <span class="step-pill">2</span>
+            <div>
+              <h2>Lesson Plan Options</h2>
+              <p class="helper-text">
+                These fields help structure a complete teacher-ready lesson plan.
+              </p>
+            </div>
+          </div>
 
-          <label for="learning_objective">Learning Objective</label>
-          <textarea
-            id="learning_objective"
-            name="learning_objective"
-            rows="3"
-            placeholder="Example: Students will be able to explain the causes and effects of the American Revolution."
-          ></textarea>
+          <div class="form-grid">
+            <div class="field field-wide">
+              <label for="learning_objective">Learning Objective</label>
+              <textarea
+                id="learning_objective"
+                name="learning_objective"
+                rows="3"
+                placeholder="Example: Students will be able to explain the causes and effects of the American Revolution."
+              ></textarea>
+            </div>
 
-          <label for="include_warmup">Include Warm-Up / Do Now?</label>
-          <select id="include_warmup" name="include_warmup">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
+            <div class="field">
+              <label for="include_warmup">Include Warm-Up / Do Now?</label>
+              <select id="include_warmup" name="include_warmup">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
 
-         
-
-          <label for="standards_alignment">Standards Alignment</label>
-          <select id="standards_alignment" name="standards_alignment">
-            <option value="Not required">Not required</option>
-            <option value="Include general standards-style objectives">Include general standards-style objectives</option>
-            <option value="Teacher will add standards later">Teacher will add standards later</option>
-          </select>
+            <div class="field">
+              <label for="standards_alignment">Standards Alignment</label>
+              <select id="standards_alignment" name="standards_alignment">
+                <option value="Not required">Not required</option>
+                <option value="Include general standards-style objectives">Include general standards-style objectives</option>
+                <option value="Teacher will add standards later">Teacher will add standards later</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <!-- Assessment options: visible for Quiz, Test, Homework, Study Guide -->
+        <!-- Assessment options: visible for Quiz, Test, and Homework Assignment -->
         <div class="form-section dynamic-section" id="assessment-fields">
-          <h2>Assessment Options</h2>
-          <p class="helper-text">
-            These options apply to quizzes, tests, homework assignments, and study guides.
-          </p>
+          <div class="section-header">
+            <span class="step-pill">2</span>
+            <div>
+              <h2>Assessment Options</h2>
+              <p class="helper-text">
+                These options apply to quizzes, tests, and homework assignments.
+              </p>
+            </div>
+          </div>
 
-          <label for="question_type">Question Type</label>
-          <select id="question_type" name="question_type">
-            <option value="Multiple Choice">Multiple Choice</option>
-<option id="essay-question-option" value="Essay Questions">Essay Questions</option>            <option value="Short Answer">Short Answer</option>
-            <option value="Mixed">Mixed</option>
-          </select>
+          <div class="form-grid">
+            <div class="field">
+              <label for="question_type">Question Type</label>
+              <select id="question_type" name="question_type">
+                <option value="Multiple Choice">Multiple Choice</option>
+                <option id="essay-question-option" value="Essay Questions">Essay Questions</option>
+                <option value="Short Answer">Short Answer</option>
+                <option value="Mixed">Mixed</option>
+              </select>
+            </div>
 
-          <label for="multiple_choice_count">Number of Multiple Choice Questions</label>
-          <input
-            type="number"
-            id="multiple_choice_count"
-            name="multiple_choice_count"
-            min="0"
-            max="50"
-            value="5"
-          />
+            <div class="field">
+              <label for="multiple_choice_count">Number of Multiple Choice Questions</label>
+              <input
+                type="number"
+                id="multiple_choice_count"
+                name="multiple_choice_count"
+                min="0"
+                max="50"
+                value="5"
+              />
+            </div>
 
-       <div id="essay-count-wrapper">
-  <label for="essay_count">Number of Essay Questions</label>
-  <input
-    type="number"
-    id="essay_count"
-    name="essay_count"
-    min="0"
-    max="20"
-    value="2"
-  />
-</div>
+            <div class="field" id="essay-count-wrapper">
+              <label for="essay_count">Number of Essay Questions</label>
+              <input
+                type="number"
+                id="essay_count"
+                name="essay_count"
+                min="0"
+                max="20"
+                value="2"
+              />
+            </div>
 
-          <label for="short_answer_count">Number of Short Answer Questions</label>
-          <input
-            type="number"
-            id="short_answer_count"
-            name="short_answer_count"
-            min="0"
-            max="30"
-            value="3"
-          />
+            <div class="field">
+              <label for="short_answer_count">Number of Short Answer Questions</label>
+              <input
+                type="number"
+                id="short_answer_count"
+                name="short_answer_count"
+                min="0"
+                max="30"
+                value="3"
+              />
+            </div>
 
-          <label for="include_answer_key">Include Answer Key?</label>
-          <select id="include_answer_key" name="include_answer_key">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
+            <div class="field">
+              <label for="include_answer_key">Include Answer Key?</label>
+              <select id="include_answer_key" name="include_answer_key">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
 
-          <label for="include_explanations">Include Explanations?</label>
-          <select id="include_explanations" name="include_explanations">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
+            <div class="field">
+              <label for="include_explanations">Include Explanations?</label>
+              <select id="include_explanations" name="include_explanations">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <!-- Activity options: only visible for Class Activity -->
         <div class="form-section dynamic-section" id="activity-fields">
-          <h2>Class Activity Options</h2>
-          <p class="helper-text">
-            Use this section for interactive classroom activities like games, simulations,
-            role plays, debates, or group exercises.
-          </p>
+          <div class="section-header">
+            <span class="step-pill">2</span>
+            <div>
+              <h2>Class Activity Options</h2>
+              <p class="helper-text">
+                Use this section for games, simulations, role plays, debates, or group exercises.
+              </p>
+            </div>
+          </div>
 
-          <label for="activity_style">Activity Style</label>
-          <select id="activity_style" name="activity_style">
-            <option value="Group Activity">Group Activity</option>
-            <option value="Classroom Game">Classroom Game</option>
-            <option value="Role Play">Role Play</option>
-            <option value="Debate">Debate</option>
-            <option value="Simulation">Simulation</option>
-            <option value="Hands-On Activity">Hands-On Activity</option>
-            <option value="Discussion-Based Activity">Discussion-Based Activity</option>
-          </select>
+          <div class="form-grid">
+            <div class="field">
+              <label for="activity_style">Activity Style</label>
+              <select id="activity_style" name="activity_style">
+                <option value="Group Activity">Group Activity</option>
+                <option value="Classroom Game">Classroom Game</option>
+                <option value="Role Play">Role Play</option>
+                <option value="Debate">Debate</option>
+                <option value="Simulation">Simulation</option>
+                <option value="Hands-On Activity">Hands-On Activity</option>
+                <option value="Discussion-Based Activity">Discussion-Based Activity</option>
+              </select>
+            </div>
 
-          <label for="materials_preference">Materials Preference</label>
-          <select id="materials_preference" name="materials_preference">
-            <option value="Use simple classroom materials">Use simple classroom materials</option>
-            <option value="Use no-cost or very low-cost materials">Use no-cost or very low-cost materials</option>
-            <option value="Use printable materials only">Use printable materials only</option>
-            <option value="Use no physical materials if possible">Use no physical materials if possible</option>
-            <option value="Use common supplies like index cards, paper, posters, markers, dice, or sticky notes">Common classroom supplies are okay</option>
-          </select>
+            <div class="field">
+              <label for="materials_preference">Materials Preference</label>
+              <select id="materials_preference" name="materials_preference">
+                <option value="Use simple classroom materials">Use simple classroom materials</option>
+                <option value="Use no-cost or very low-cost materials">Use no-cost or very low-cost materials</option>
+                <option value="Use printable materials only">Use printable materials only</option>
+                <option value="Use no physical materials if possible">Use no physical materials if possible</option>
+                <option value="Use common supplies like index cards, paper, posters, markers, dice, or sticky notes">Common classroom supplies are okay</option>
+              </select>
+            </div>
 
-          <label for="activity_goal">Activity Goal</label>
-          <textarea
-            id="activity_goal"
-            name="activity_goal"
-            rows="3"
-            placeholder="Example: Students will understand why barter can be inefficient and why money developed as a medium of exchange."
-          ></textarea>
+            <div class="field field-wide">
+              <label for="activity_goal">Activity Goal</label>
+              <textarea
+                id="activity_goal"
+                name="activity_goal"
+                rows="3"
+                placeholder="Example: Students will understand why barter can be inefficient and why money developed as a medium of exchange."
+              ></textarea>
+            </div>
 
-          <label for="include_reflection">Include Reflection Questions?</label>
-          <select id="include_reflection" name="include_reflection">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
+            <div class="field">
+              <label for="include_reflection">Include Reflection Questions?</label>
+              <select id="include_reflection" name="include_reflection">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <!-- Discussion options: only visible for Discussion Questions -->
         <div class="form-section dynamic-section" id="discussion-fields">
-          <h2>Discussion Options</h2>
-          <p class="helper-text">
-            Use this section when you want classroom discussion prompts instead of a full assignment.
-          </p>
+          <div class="section-header">
+            <span class="step-pill">2</span>
+            <div>
+              <h2>Discussion Options</h2>
+              <p class="helper-text">
+                Use this section when you want discussion prompts instead of a full assignment.
+              </p>
+            </div>
+          </div>
 
-          <label for="discussion_count">Number of Discussion Questions</label>
-          <input
-            type="number"
-            id="discussion_count"
-            name="discussion_count"
-            min="1"
-            max="30"
-            value="8"
-          />
+          <div class="form-grid">
+            <div class="field">
+              <label for="discussion_count">Number of Discussion Questions</label>
+              <input
+                type="number"
+                id="discussion_count"
+                name="discussion_count"
+                min="1"
+                max="30"
+                value="8"
+              />
+            </div>
 
-          <label for="discussion_style">Discussion Style</label>
-          <select id="discussion_style" name="discussion_style">
-            <option value="Open-ended classroom discussion">Open-ended classroom discussion</option>
-            <option value="Small group discussion">Small group discussion</option>
-            <option value="Debate-style questions">Debate-style questions</option>
-            <option value="Socratic seminar">Socratic seminar</option>
-          </select>
+            <div class="field">
+              <label for="discussion_style">Discussion Style</label>
+              <select id="discussion_style" name="discussion_style">
+                <option value="Open-ended classroom discussion">Open-ended classroom discussion</option>
+                <option value="Small group discussion">Small group discussion</option>
+                <option value="Debate-style questions">Debate-style questions</option>
+                <option value="Socratic seminar">Socratic seminar</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <!-- Source and style preferences: always visible -->
+        <!-- Style preferences: always visible -->
         <div class="form-section">
-          <h2>Style Preferences and Additional Instructions</h2>
+          <div class="section-header">
+            <span class="step-pill">3</span>
+            <div>
+              <h2>Style Preferences</h2>
+              <p class="helper-text">
+                Add tone and any extra instructions you want reflected in the output.
+              </p>
+            </div>
+          </div>
 
-          
+          <div class="form-grid">
+            <div class="field">
+              <label for="tone">Tone</label>
+              <select id="tone" name="tone">
+                <option value="Clear and teacher-friendly">Clear and teacher-friendly</option>
+                <option value="Simple and beginner-friendly">Simple and beginner-friendly</option>
+                <option value="Academic">Academic</option>
+                <option value="Engaging and interactive">Engaging and interactive</option>
+              </select>
+            </div>
 
-          <label for="tone">Tone</label>
-          <select id="tone" name="tone">
-            <option value="Clear and teacher-friendly">Clear and teacher-friendly</option>
-            <option value="Simple and beginner-friendly">Simple and beginner-friendly</option>
-            <option value="Academic">Academic</option>
-            <option value="Engaging and interactive">Engaging and interactive</option>
-          </select>
-
-          <label for="additional_instructions">Additional Instructions</label>
-          <textarea
-            id="additional_instructions"
-            name="additional_instructions"
-            rows="5"
-            placeholder="Example: Make this appropriate for English language learners, include vocabulary words, include group work, or make it more challenging."
-          ></textarea>
+            <div class="field field-wide">
+              <label for="additional_instructions">Additional Instructions</label>
+              <textarea
+                id="additional_instructions"
+                name="additional_instructions"
+                rows="5"
+                placeholder="Example: Make this appropriate for English language learners, include vocabulary words, include group work, or make it more challenging."
+              ></textarea>
+            </div>
+          </div>
         </div>
 
-        <button type="submit">Generate Material</button>
+        <div class="submit-bar">
+          <div>
+            <p class="section-label">Ready to generate</p>
+            <p class="submit-helper">You can regenerate or edit the output after it is created.</p>
+          </div>
+
+          <button type="submit" class="primary-submit">Generate Material</button>
+        </div>
       </form>
     </section>
   </main>
 
   <script>
-const materialTypeSelect = document.getElementById("material_type");
-const gradeLevelSelect = document.getElementById("grade_level");
-const subjectSelect = document.getElementById("subject");
+    const materialTypeSelect = document.getElementById("material_type");
+    const gradeLevelSelect = document.getElementById("grade_level");
+    const subjectSelect = document.getElementById("subject");
 
-const lessonPlanFields = document.getElementById("lesson-plan-fields");
-const assessmentFields = document.getElementById("assessment-fields");
-const activityFields = document.getElementById("activity-fields");
-const discussionFields = document.getElementById("discussion-fields");
-const classTimeField = document.getElementById("class-time-field");
+    const lessonPlanFields = document.getElementById("lesson-plan-fields");
+    const assessmentFields = document.getElementById("assessment-fields");
+    const activityFields = document.getElementById("activity-fields");
+    const discussionFields = document.getElementById("discussion-fields");
+    const classTimeField = document.getElementById("class-time-field");
 
-const economicsOption = document.getElementById("economics-option");
-const computerScienceOption = document.getElementById("computer-science-option");
-const questionTypeSelect = document.getElementById("question_type");
-const essayQuestionOption = document.getElementById("essay-question-option");
-const essayCountInput = document.getElementById("essay_count");
-const essayCountWrapper = document.getElementById("essay-count-wrapper");
+    const economicsOption = document.getElementById("economics-option");
+    const computerScienceOption = document.getElementById("computer-science-option");
+    const questionTypeSelect = document.getElementById("question_type");
+    const essayQuestionOption = document.getElementById("essay-question-option");
+    const essayCountInput = document.getElementById("essay_count");
+    const essayCountWrapper = document.getElementById("essay-count-wrapper");
 
-function hideAllDynamicSections() {
-  lessonPlanFields.style.display = "none";
-  assessmentFields.style.display = "none";
-  activityFields.style.display = "none";
-  discussionFields.style.display = "none";
-  classTimeField.style.display = "none";
-}
-function updateSubjectOptions() {
-  const gradeLevel = gradeLevelSelect.value;
-
-  const elementaryGrades = [
-    "Kindergarten",
-    "1st Grade",
-    "2nd Grade",
-    "3rd Grade",
-    "4th Grade",
-    "5th Grade"
-  ];
-
-  if (elementaryGrades.includes(gradeLevel)) {
-    economicsOption.style.display = "none";
-    computerScienceOption.style.display = "none";
-
-    if (subjectSelect.value === "Economics" || subjectSelect.value === "Computer Science") {
-      subjectSelect.value = "";
-    }
-  } else {
-    economicsOption.style.display = "block";
-    computerScienceOption.style.display = "block";
-  }
-}
-function toggleEssayOption() {
-  const subject = subjectSelect.value;
-
-  if (subject === "Science" || subject === "Math") {
-    essayQuestionOption.style.display = "none";
-    essayCountWrapper.style.display = "none";
-
-    if (questionTypeSelect.value === "Essay Questions") {
-      questionTypeSelect.value = "Short Answer";
+    function hideAllDynamicSections() {
+      lessonPlanFields.style.display = "none";
+      assessmentFields.style.display = "none";
+      activityFields.style.display = "none";
+      discussionFields.style.display = "none";
+      classTimeField.style.display = "none";
     }
 
-    essayCountInput.value = 0;
-  } else {
-    essayQuestionOption.style.display = "block";
-    essayCountWrapper.style.display = "block";
-  }
-}
+    function updateSubjectOptions() {
+      const gradeLevel = gradeLevelSelect.value;
+
+      const elementaryGrades = [
+        "Kindergarten",
+        "1st Grade",
+        "2nd Grade",
+        "3rd Grade",
+        "4th Grade",
+        "5th Grade"
+      ];
+
+      if (elementaryGrades.includes(gradeLevel)) {
+        economicsOption.style.display = "none";
+        computerScienceOption.style.display = "none";
+
+        if (subjectSelect.value === "Economics" || subjectSelect.value === "Computer Science") {
+          subjectSelect.value = "";
+        }
+      } else {
+        economicsOption.style.display = "block";
+        computerScienceOption.style.display = "block";
+      }
+    }
+
+    function toggleEssayOption() {
+      const subject = subjectSelect.value;
+
+      if (subject === "Science" || subject === "Math") {
+        essayQuestionOption.style.display = "none";
+        essayCountWrapper.style.display = "none";
+
+        if (questionTypeSelect.value === "Essay Questions") {
+          questionTypeSelect.value = "Short Answer";
+        }
+
+        essayCountInput.value = 0;
+      } else {
+        essayQuestionOption.style.display = "block";
+        essayCountWrapper.style.display = "block";
+      }
+    }
+
     function toggleFormSections() {
       const materialType = materialTypeSelect.value;
 
@@ -358,19 +461,19 @@ function toggleEssayOption() {
         "Homework Assignment",
       ];
 
-     if (materialType === "Lesson Plan") {
-  lessonPlanFields.style.display = "block";
-  classTimeField.style.display = "block";
-}
+      if (materialType === "Lesson Plan") {
+        lessonPlanFields.style.display = "block";
+        classTimeField.style.display = "block";
+      }
 
       if (assessmentTypes.includes(materialType)) {
         assessmentFields.style.display = "block";
       }
 
-     if (materialType === "Class Activity") {
-  activityFields.style.display = "block";
-  classTimeField.style.display = "block";
-}
+      if (materialType === "Class Activity") {
+        activityFields.style.display = "block";
+        classTimeField.style.display = "block";
+      }
 
       if (materialType === "Discussion Questions") {
         discussionFields.style.display = "block";
