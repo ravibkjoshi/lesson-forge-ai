@@ -174,6 +174,7 @@ def generate():
     difficulty = request.form.get("difficulty")
 
     prompt = build_generation_prompt(request.form)
+    form_data = request.form.to_dict()
     generated_text = generate_with_gemini(prompt)
 
     display_markdown = add_pdf_page_break_before_answer_key(generated_text)
@@ -192,6 +193,7 @@ def generate():
         difficulty=difficulty,
         generated_text=generated_text,
         generated_html=generated_html,
+        form_data=form_data,
     )
 
 

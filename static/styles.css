@@ -193,6 +193,13 @@ button:hover {
     flex-direction: column;
   }
 }
+.regenerate-form {
+  flex: 1;
+}
+
+.regenerate-form button {
+  width: 100%;
+}
 
 /* Print / PDF styles */
 @media print {

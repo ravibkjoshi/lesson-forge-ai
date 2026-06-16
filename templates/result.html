@@ -26,11 +26,20 @@
         <p><strong>Difficulty:</strong> {{ difficulty }}</p>
       </div>
 
-      <div class="copy-actions no-print">
-        <button type="button" onclick="copyGeneratedText()">Copy Generated Text</button>
-        <button type="button" onclick="saveAsPDF()">Save as PDF</button>
-        <a href="/" class="secondary-button">Create Another</a>
-      </div>
+    <div class="copy-actions no-print">
+  <button type="button" onclick="copyGeneratedText()">Copy Generated Text</button>
+
+  <button type="button" onclick="saveAsPDF()">Save as PDF</button>
+
+  <form action="/generate" method="POST" class="regenerate-form">
+    {% for key, value in form_data.items() %}
+      <input type="hidden" name="{{ key }}" value="{{ value }}">
+    {% endfor %}
+    <button type="submit">Regenerate</button>
+  </form>
+
+  <a href="/" class="secondary-button">Create Another</a>
+</div>
 
       <div class="generated-output">
         <h2>Generated Content</h2>
