@@ -87,7 +87,7 @@ def build_generation_prompt(form_data):
 
     # Assessment-specific prompt instructions.
     # This section supports quizzes, tests, homework assignments, and study guides.
-    if material_type in ["Quiz", "Test", "Homework Assignment", "Study Guide"]:
+    if material_type in ["Quiz", "Test", "Homework Assignment"]:
         subject = form_data.get("subject")
 
         # Math and Science currently avoid essay questions because short answer,
@@ -112,7 +112,29 @@ def build_generation_prompt(form_data):
             "Do not place the answer key before the student-facing assignment.",
             "",
         ])
-
+    # Study guide-specific prompt instructions.
+    # Study guides should summarize and organize concepts rather than act like assessments.
+    if material_type == "Study Guide":
+        prompt_sections.extend([
+            "Study Guide Requirements:",
+            f"Estimated Class Time: {form_data.get('lesson_length')}",
+            "",
+            "Create a student-friendly study guide, not a quiz, test, homework assignment, or problem set.",
+            "Do not include essay questions.",
+            "Do not include an answer key.",
+            "Do not include a long list of practice problems unless the teacher specifically asks for practice questions.",
+            "",
+            "Format the study guide with these sections:",
+            "- Overview",
+            "- Key Concepts",
+            "- Important Vocabulary",
+            "- Core Ideas to Remember",
+            "- Examples",
+            "- Common Mistakes or Misconceptions",
+            "- Suggested Visuals or Diagram Ideas",
+            "- Quick Review Checklist",
+            "",
+        ])
     # Class activity-specific prompt instructions.
     # These help Gemini create structured classroom games, simulations,
     # group activities, debates, role plays, or hands-on activities.
