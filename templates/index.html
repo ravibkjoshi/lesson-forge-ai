@@ -149,15 +149,17 @@
             value="5"
           />
 
-          <label for="essay_count">Number of Essay Questions</label>
-          <input
-            type="number"
-            id="essay_count"
-            name="essay_count"
-            min="0"
-            max="20"
-            value="2"
-          />
+       <div id="essay-count-wrapper">
+  <label for="essay_count">Number of Essay Questions</label>
+  <input
+    type="number"
+    id="essay_count"
+    name="essay_count"
+    min="0"
+    max="20"
+    value="2"
+  />
+</div>
 
           <label for="short_answer_count">Number of Short Answer Questions</label>
           <input
@@ -295,6 +297,7 @@ const computerScienceOption = document.getElementById("computer-science-option")
 const questionTypeSelect = document.getElementById("question_type");
 const essayQuestionOption = document.getElementById("essay-question-option");
 const essayCountInput = document.getElementById("essay_count");
+const essayCountWrapper = document.getElementById("essay-count-wrapper");
 
 function hideAllDynamicSections() {
   lessonPlanFields.style.display = "none";
@@ -332,6 +335,7 @@ function toggleEssayOption() {
 
   if (subject === "Science" || subject === "Math") {
     essayQuestionOption.style.display = "none";
+    essayCountWrapper.style.display = "none";
 
     if (questionTypeSelect.value === "Essay Questions") {
       questionTypeSelect.value = "Short Answer";
@@ -340,6 +344,7 @@ function toggleEssayOption() {
     essayCountInput.value = 0;
   } else {
     essayQuestionOption.style.display = "block";
+    essayCountWrapper.style.display = "block";
   }
 }
     function toggleFormSections() {
