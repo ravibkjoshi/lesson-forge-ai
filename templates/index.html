@@ -42,17 +42,16 @@
           </select>
 
           <label for="subject">Subject</label>
-          <select id="subject" name="subject" required>
-            <option value="">Select a subject</option>
-            <option value="History">History</option>
-            <option value="Science">Science</option>
-            <option value="English / Language Arts">English / Language Arts</option>
-            <option value="Math">Math</option>
-            <option value="Social Studies">Social Studies</option>
-            <option value="Economics">Economics</option>
-       <option id="economics-option" value="Economics">Economics</option>
-<option id="computer-science-option" value="Computer Science">Computer Science</option>
-          </select>
+<select id="subject" name="subject" required>
+  <option value="">Select a subject</option>
+  <option value="History">History</option>
+  <option value="Science">Science</option>
+  <option value="English / Language Arts">English / Language Arts</option>
+  <option value="Math">Math</option>
+  <option value="Social Studies">Social Studies</option>
+  <option id="economics-option" value="Economics">Economics</option>
+  <option id="computer-science-option" value="Computer Science">Computer Science</option>
+</select>
 
           <label for="topic">Topic</label>
           <input
@@ -292,14 +291,17 @@
 
   <script>
 const materialTypeSelect = document.getElementById("material_type");
+const gradeLevelSelect = document.getElementById("grade_level");
+const subjectSelect = document.getElementById("subject");
+
 const lessonPlanFields = document.getElementById("lesson-plan-fields");
 const assessmentFields = document.getElementById("assessment-fields");
 const activityFields = document.getElementById("activity-fields");
 const discussionFields = document.getElementById("discussion-fields");
 const classTimeField = document.getElementById("class-time-field");
+
 const economicsOption = document.getElementById("economics-option");
 const computerScienceOption = document.getElementById("computer-science-option");
-
 
 function hideAllDynamicSections() {
   lessonPlanFields.style.display = "none";
