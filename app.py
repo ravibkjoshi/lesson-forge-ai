@@ -7,13 +7,20 @@ from flask import Flask, render_template, request
 from google import genai
 
 
+# Load environment variables from the local .env file.
+# This keeps the Google API key out of the source code and out of GitHub.
 load_dotenv()
 
 app = Flask(__name__)
 
+# Create a Gemini client using the API key stored in .env.
+# The app expects GOOGLE_API_KEY to be defined locally.
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
+# Main system prompt for LessonForge AI.
+# This controls the overall behavior of the generated educational materials.
+# It keeps outputs practical, teacher-friendly, grade-appropriate, and formatted cleanly.
 SYSTEM_PROMPT = """
 You are LessonForge AI, an assistant that creates classroom-ready educational materials for teachers.
 
@@ -40,6 +47,16 @@ Follow these rules:
 
 
 def build_generation_prompt(form_data):
+    """
+    Builds the user-specific prompt that gets sent to Gemini.
+
+    The form always sends core details like grade level, subject, topic,
+    material type, difficulty, tone, and additional instructions.
+
+    Depending on the selected material type, this function adds extra
+    instructions for lesson plans, assessments, class activities, or
+    discussion questions.
+    """
     material_type = form_data.get("material_type")
 
     prompt_sections = [
@@ -55,10 +72,12 @@ def build_generation_prompt(form_data):
         "",
     ]
 
+    # Lesson plan-specific prompt instructions.
+    # These are only included when the teacher selects "Lesson Plan".
     if material_type == "Lesson Plan":
         prompt_sections.extend([
             "Lesson Plan Requirements:",
-                    f"Estimated Class Time: {form_data.get('lesson_length')}",
+            f"Estimated Class Time: {form_data.get('lesson_length')}",
             f"Learning Objective: {form_data.get('learning_objective') or 'Generate an appropriate learning objective based on the topic.'}",
             f"Include Warm-Up / Do Now: {form_data.get('include_warmup')}",
             "",
@@ -66,12 +85,21 @@ def build_generation_prompt(form_data):
             "",
         ])
 
+    # Assessment-specific prompt instructions.
+    # This section supports quizzes, tests, homework assignments, and study guides.
     if material_type in ["Quiz", "Test", "Homework Assignment", "Study Guide"]:
+        subject = form_data.get("subject")
+
+        # Math and Science currently avoid essay questions because short answer,
+        # multiple choice, and problem-based questions are usually a better fit.
+        essay_count = "0" if subject in ["Science", "Math"] else form_data.get("essay_count")
+
         prompt_sections.extend([
             "Assessment Requirements:",
             f"Question Type: {form_data.get('question_type')}",
             f"Multiple Choice Count: {form_data.get('multiple_choice_count')}",
-f"Essay Question Count: {'0' if form_data.get('subject') in ['Science', 'Math'] else form_data.get('essay_count')}",            f"Short Answer Count: {form_data.get('short_answer_count')}",
+            f"Essay Question Count: {essay_count}",
+            f"Short Answer Count: {form_data.get('short_answer_count')}",
             f"Include Answer Key: {form_data.get('include_answer_key')}",
             f"Include Explanations: {form_data.get('include_explanations')}",
             "",
@@ -85,10 +113,13 @@ f"Essay Question Count: {'0' if form_data.get('subject') in ['Science', 'Math'] 
             "",
         ])
 
+    # Class activity-specific prompt instructions.
+    # These help Gemini create structured classroom games, simulations,
+    # group activities, debates, role plays, or hands-on activities.
     if material_type == "Class Activity":
         prompt_sections.extend([
             "Class Activity Requirements:",
-                    f"Estimated Class Time: {form_data.get('lesson_length')}",
+            f"Estimated Class Time: {form_data.get('lesson_length')}",
             f"Activity Style: {form_data.get('activity_style')}",
             f"Materials Preference: {form_data.get('materials_preference')}",
             f"Activity Goal: {form_data.get('activity_goal') or 'Generate an appropriate activity goal based on the topic.'}",
@@ -99,6 +130,8 @@ f"Essay Question Count: {'0' if form_data.get('subject') in ['Science', 'Math'] 
             "",
         ])
 
+    # Discussion-specific prompt instructions.
+    # These are only included when the teacher selects "Discussion Questions".
     if material_type == "Discussion Questions":
         prompt_sections.extend([
             "Discussion Requirements:",
@@ -109,6 +142,8 @@ f"Essay Question Count: {'0' if form_data.get('subject') in ['Science', 'Math'] 
             "",
         ])
 
+    # Final output rules that apply to every generated material type.
+    # These keep the response clean, teacher-ready, and easy to render as HTML/PDF.
     prompt_sections.extend([
         "Output Requirements:",
         "- Start with a brief overview.",
@@ -129,6 +164,12 @@ f"Essay Question Count: {'0' if form_data.get('subject') in ['Science', 'Math'] 
 
 
 def generate_with_gemini(prompt):
+    """
+    Sends the final prompt to Gemini and returns the generated text.
+
+    The system prompt defines the app's overall behavior.
+    The teacher request contains the specific form inputs from the user.
+    """
     full_prompt = f"{SYSTEM_PROMPT}\n\nTeacher Request:\n{prompt}"
 
     response = client.models.generate_content(
@@ -142,7 +183,12 @@ def generate_with_gemini(prompt):
 def add_pdf_page_break_before_answer_key(markdown_text):
     """
     Inserts a print-only page break before the Answer Key section.
-    This affects the rendered PDF view, but not the raw copied text.
+
+    This helps keep the student-facing material and the answer key separated
+    when the teacher saves or prints the result as a PDF.
+
+    The raw copied text stays unchanged. Only the rendered HTML/PDF version
+    receives the page break marker.
     """
     if '<div class="pdf-page-break"></div>' in markdown_text:
         return markdown_text
@@ -159,23 +205,46 @@ def add_pdf_page_break_before_answer_key(markdown_text):
 
 @app.route("/")
 def index():
+    """
+    Displays the main LessonForge AI form.
+
+    The form is defined in templates/index.html and collects the teacher's
+    grade level, subject, topic, material type, and related options.
+    """
     return render_template("index.html")
 
 
 @app.route("/generate", methods=["POST"])
 def generate():
+    """
+    Handles form submission and generates the final classroom material.
+
+    Flow:
+    1. Read the submitted form values.
+    2. Build a structured prompt for Gemini.
+    3. Generate the material with Gemini.
+    4. Add a PDF page break before the answer key when applicable.
+    5. Convert the Markdown output into HTML for cleaner display.
+    6. Render the result page with copy, regenerate, and PDF options.
+    """
     grade_level = request.form.get("grade_level")
     subject = request.form.get("subject")
     topic = request.form.get("topic")
     material_type = request.form.get("material_type")
     difficulty = request.form.get("difficulty")
 
-    prompt = build_generation_prompt(request.form)
+    # Store the original form inputs so the result page can resubmit them
+    # if the teacher clicks "Regenerate".
     form_data = request.form.to_dict()
+
+    prompt = build_generation_prompt(request.form)
     generated_text = generate_with_gemini(prompt)
 
+    # Add print/PDF-specific formatting before converting Markdown to HTML.
     display_markdown = add_pdf_page_break_before_answer_key(generated_text)
 
+    # Convert the generated Markdown into HTML so the result page is easier
+    # to read and print.
     generated_html = markdown.markdown(
         display_markdown,
         extensions=["extra", "nl2br"]
@@ -195,5 +264,7 @@ def generate():
 
 
 if __name__ == "__main__":
+    # Run the Flask development server locally.
+    # This is for local development only, not production hosting.
     print("Open LessonForge AI at: http://localhost:5050")
     app.run(debug=True, host="127.0.0.1", port=5050)
