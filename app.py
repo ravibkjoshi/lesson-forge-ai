@@ -50,7 +50,6 @@ def build_generation_prompt(form_data):
         f"Topic: {form_data.get('topic')}",
         f"Material Type: {material_type}",
         f"Difficulty: {form_data.get('difficulty')}",
-        f"Estimated Class Time: {form_data.get('lesson_length')}",
         f"Tone: {form_data.get('tone')}",
         f"Additional Instructions: {form_data.get('additional_instructions') or 'None provided.'}",
         "",
@@ -59,6 +58,7 @@ def build_generation_prompt(form_data):
     if material_type == "Lesson Plan":
         prompt_sections.extend([
             "Lesson Plan Requirements:",
+                    f"Estimated Class Time: {form_data.get('lesson_length')}",
             f"Learning Objective: {form_data.get('learning_objective') or 'Generate an appropriate learning objective based on the topic.'}",
             f"Include Warm-Up / Do Now: {form_data.get('include_warmup')}",
             f"Include Exit Ticket: {form_data.get('include_exit_ticket')}",
@@ -91,6 +91,7 @@ def build_generation_prompt(form_data):
     if material_type == "Class Activity":
         prompt_sections.extend([
             "Class Activity Requirements:",
+                    f"Estimated Class Time: {form_data.get('lesson_length')}",
             f"Activity Style: {form_data.get('activity_style')}",
             f"Materials Preference: {form_data.get('materials_preference')}",
             f"Activity Goal: {form_data.get('activity_goal') or 'Generate an appropriate activity goal based on the topic.'}",

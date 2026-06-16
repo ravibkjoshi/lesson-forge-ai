@@ -50,8 +50,8 @@
             <option value="Math">Math</option>
             <option value="Social Studies">Social Studies</option>
             <option value="Economics">Economics</option>
-            <option value="Computer Science">Computer Science</option>
-            <option value="General">General</option>
+       <option id="economics-option" value="Economics">Economics</option>
+<option id="computer-science-option" value="Computer Science">Computer Science</option>
           </select>
 
           <label for="topic">Topic</label>
@@ -83,14 +83,16 @@
             <option value="Challenging">Challenging</option>
           </select>
 
-          <label for="lesson_length">Estimated Class Time</label>
-          <select id="lesson_length" name="lesson_length">
-            <option value="30 minutes">30 minutes</option>
-            <option value="45 minutes">45 minutes</option>
-            <option value="60 minutes">60 minutes</option>
-            <option value="90 minutes">90 minutes</option>
-            <option value="Multiple class periods">Multiple class periods</option>
-          </select>
+          <div id="class-time-field">
+  <label for="lesson_length">Estimated Class Time</label>
+  <select id="lesson_length" name="lesson_length">
+    <option value="30 minutes">30 minutes</option>
+    <option value="45 minutes">45 minutes</option>
+    <option value="60 minutes">60 minutes</option>
+    <option value="90 minutes">90 minutes</option>
+    <option value="Multiple class periods">Multiple class periods</option>
+  </select>
+</div>
         </div>
 
         <!-- Lesson plan options: only visible for Lesson Plan -->
@@ -289,19 +291,47 @@
   </main>
 
   <script>
-    const materialTypeSelect = document.getElementById("material_type");
+const materialTypeSelect = document.getElementById("material_type");
+const lessonPlanFields = document.getElementById("lesson-plan-fields");
+const assessmentFields = document.getElementById("assessment-fields");
+const activityFields = document.getElementById("activity-fields");
+const discussionFields = document.getElementById("discussion-fields");
+const classTimeField = document.getElementById("class-time-field");
+const economicsOption = document.getElementById("economics-option");
+const computerScienceOption = document.getElementById("computer-science-option");
 
-    const lessonPlanFields = document.getElementById("lesson-plan-fields");
-    const assessmentFields = document.getElementById("assessment-fields");
-    const activityFields = document.getElementById("activity-fields");
-    const discussionFields = document.getElementById("discussion-fields");
 
-    function hideAllDynamicSections() {
-      lessonPlanFields.style.display = "none";
-      assessmentFields.style.display = "none";
-      activityFields.style.display = "none";
-      discussionFields.style.display = "none";
+function hideAllDynamicSections() {
+  lessonPlanFields.style.display = "none";
+  assessmentFields.style.display = "none";
+  activityFields.style.display = "none";
+  discussionFields.style.display = "none";
+  classTimeField.style.display = "none";
+}
+function updateSubjectOptions() {
+  const gradeLevel = gradeLevelSelect.value;
+
+  const elementaryGrades = [
+    "Kindergarten",
+    "1st Grade",
+    "2nd Grade",
+    "3rd Grade",
+    "4th Grade",
+    "5th Grade"
+  ];
+
+  if (elementaryGrades.includes(gradeLevel)) {
+    economicsOption.style.display = "none";
+    computerScienceOption.style.display = "none";
+
+    if (subjectSelect.value === "Economics" || subjectSelect.value === "Computer Science") {
+      subjectSelect.value = "";
     }
+  } else {
+    economicsOption.style.display = "block";
+    computerScienceOption.style.display = "block";
+  }
+}
 
     function toggleFormSections() {
       const materialType = materialTypeSelect.value;
@@ -315,17 +345,19 @@
         "Study Guide"
       ];
 
-      if (materialType === "Lesson Plan") {
-        lessonPlanFields.style.display = "block";
-      }
+     if (materialType === "Lesson Plan") {
+  lessonPlanFields.style.display = "block";
+  classTimeField.style.display = "block";
+}
 
       if (assessmentTypes.includes(materialType)) {
         assessmentFields.style.display = "block";
       }
 
-      if (materialType === "Class Activity") {
-        activityFields.style.display = "block";
-      }
+     if (materialType === "Class Activity") {
+  activityFields.style.display = "block";
+  classTimeField.style.display = "block";
+}
 
       if (materialType === "Discussion Questions") {
         discussionFields.style.display = "block";
@@ -333,9 +365,11 @@
     }
 
     materialTypeSelect.addEventListener("change", toggleFormSections);
+    gradeLevelSelect.addEventListener("change", updateSubjectOptions);
 
     // Run once when the page loads so irrelevant fields are hidden by default.
     toggleFormSections();
+    updateSubjectOptions();
   </script>
 </body>
 </html>
