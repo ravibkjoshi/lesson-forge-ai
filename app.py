@@ -106,14 +106,17 @@ def build_generation_prompt(form_data):
             f"Include Answer Key: {form_data.get('include_answer_key')}",
             f"Include Explanations: {form_data.get('include_explanations')}",
             "",
-                    # Tell Gemini to use lesson scope as planning logic only.
-            # We do not want "Lesson Scope" printed in the student version.
-            "Before writing the student-facing material, use the lesson scope internally to decide what concepts to assess.",
-            "Do not include the lesson scope in the student version.",
+                    # Always give the teacher a separate scope/context section.
+                    # This helps the teacher understand what students are expected to know.
+                    # This section should appear on the results page, but not inside the student PDF.
+                "For quizzes, tests, and homework assignments, always include a teacher-facing lesson scope before the student version.",
+                "Start that section with the exact Markdown heading: ## Teacher Lesson Scope",
+                "The Teacher Lesson Scope should briefly list the concepts, vocabulary, or skills students are expected to know.",
+                "Do not include the Teacher Lesson Scope inside the student version.",
 
-            # Give the student document a predictable heading.
-            # The split helper can use this to remove any setup text before the actual student material.
-            "Start the student-facing material with the exact Markdown heading: ## Student Version",
+# Give the student document a predictable heading.
+# The split helper can use this to separate the student material cleanly.
+"Start the student-facing material with the exact Markdown heading: ## Student Version",
 
             # Keep questions fair and limited to the selected topic, grade level, and teacher instructions.
             "Only write questions that are answerable from the selected topic, grade level, and teacher instructions.",
@@ -253,11 +256,25 @@ def is_assessment_material(material_type):
     return material_type in assessment_materials
 
 
-def split_student_material_and_answer_key(markdown_text):
+def split_assessment_sections(markdown_text):
     """
-    Splits Gemini's generated Markdown into student material and answer key.
+    Splits Gemini's generated Markdown into three separate pieces:
 
-    Expected assessment format:
+    1. teacher_scope:
+       The teacher-facing lesson scope/context.
+
+    2. student_material:
+       The student-facing quiz, test, or homework assignment.
+
+    3. answer_key:
+       The answer key section, including repeated questions, answers,
+       explanations, or grading guidance.
+
+    Expected Gemini format:
+
+    ## Teacher Lesson Scope
+    teacher-facing context
+
     ## Student Version
     student-facing questions
 
@@ -265,24 +282,30 @@ def split_student_material_and_answer_key(markdown_text):
     repeated questions, answers, and explanations
     """
 
+    teacher_scope_pattern = r"(?im)^((?:#{1,6}\s*)?teacher lesson scope[^\n]*)$"
     student_pattern = r"(?im)^((?:#{1,6}\s*)?student version[^\n]*)$"
     answer_key_pattern = r"(?im)^((?:#{1,6}\s*)?answer key[^\n]*)$"
 
+    teacher_scope_match = re.search(teacher_scope_pattern, markdown_text)
+    student_match = re.search(student_pattern, markdown_text)
     answer_key_match = re.search(answer_key_pattern, markdown_text)
 
+    teacher_scope = ""
+    student_material = markdown_text.strip()
+    answer_key = ""
+
+    if teacher_scope_match and student_match:
+        teacher_scope = markdown_text[teacher_scope_match.end():student_match.start()].strip()
+
+    if student_match and answer_key_match:
+        student_material = markdown_text[student_match.end():answer_key_match.start()].strip()
+    elif student_match:
+        student_material = markdown_text[student_match.end():].strip()
+
     if answer_key_match:
-        student_material = markdown_text[:answer_key_match.start()].strip()
-        answer_key = markdown_text[answer_key_match.start():].strip()
-    else:
-        student_material = markdown_text.strip()
-        answer_key = ""
+        answer_key = markdown_text[answer_key_match.end():].strip()
 
-    student_match = re.search(student_pattern, student_material)
-
-    if student_match:
-        student_material = student_material[student_match.end():].strip()
-
-    return student_material, answer_key
+    return teacher_scope, student_material, answer_key
 
 @app.route("/")
 def index():
@@ -336,6 +359,7 @@ def generate():
     # Treat the full generated response as the student-facing material.
     # This is what we want for non-assessment materials like Study Guide,
     # Lesson Plan, Class Activity, and Discussion Questions.
+    teacher_scope_text = ""
     student_material_text = generated_text
     answer_key_text = ""
 
@@ -345,7 +369,7 @@ def generate():
     # 1. student_material_text: everything before "## Answer Key"
     # 2. answer_key_text: "## Answer Key" and everything after it
     if has_answer_key_document:
-        student_material_text, answer_key_text = split_student_material_and_answer_key(generated_text)
+          teacher_scope_text, student_material_text, answer_key_text = split_assessment_sections(generated_text)
 
     # Convert the student-facing Markdown into HTML for the main result display.
     # For assessments, this should no longer include the answer key.
@@ -354,6 +378,11 @@ def generate():
         student_material_text,
         extensions=["extra", "nl2br"]
     )
+    
+    teacher_scope_html = markdown.markdown(
+    teacher_scope_text,
+    extensions=["extra", "nl2br"]
+) if teacher_scope_text else ""
 
     # Convert the answer key Markdown into HTML only if an answer key exists.
     # If answer_key_text is empty, keep answer_key_html as an empty string.
@@ -376,6 +405,9 @@ def generate():
 
         # HTML version of the student-facing material.
         generated_html=generated_html,
+        
+        teacher_scope_text=teacher_scope_text,
+        teacher_scope_html=teacher_scope_html,
 
         # Raw Markdown version of the student-facing material.
         student_material_text=student_material_text,

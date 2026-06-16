@@ -600,3 +600,18 @@ button:hover {
     max-width: none;
   }
 }
+.teacher-scope-panel {
+  margin-bottom: 34px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.teacher-scope-output {
+  background: #f8fafc;
+  border-color: #dbeafe;
+}
+
+.teacher-scope-output ul,
+.teacher-scope-output ol {
+  margin-bottom: 0;
+}

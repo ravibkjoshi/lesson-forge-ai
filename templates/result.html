@@ -33,7 +33,12 @@
 
       <div class="copy-actions no-print">
         {% if has_answer_key_document and answer_key_text %}
-          <button class="button-primary" type="button" onclick="copyTextById('studentMaterialText')">
+        {% if teacher_scope_text %}
+  <button class="button-secondary" type="button" onclick="copyTextById('teacherScopeText')">
+    Copy Teacher Scope
+  </button>
+{% endif %}  
+        <button class="button-primary" type="button" onclick="copyTextById('studentMaterialText')">
             Copy Student Version
           </button>
 
@@ -68,20 +73,35 @@
         <a href="/" class="secondary-button">Create Another</a>
       </div>
 
-      <div class="generated-output">
-        <div class="output-header">
-          {% if has_answer_key_document and answer_key_text %}
-            <div>
-              <p class="section-label">Printable Student Copy</p>
-              <h2>Student Version</h2>
-            </div>
-          {% else %}
-            <div>
-              <p class="section-label">Generated Output</p>
-              <h2>Generated Content</h2>
-            </div>
-          {% endif %}
+ <div class="generated-output">
+  {% if has_answer_key_document and teacher_scope_text %}
+    <div class="teacher-scope-panel no-print">
+      <div class="output-header">
+        <div>
+          <p class="section-label">Teacher Context</p>
+          <h2>Teacher Lesson Scope</h2>
         </div>
+      </div>
+
+      <div id="teacherScopeDisplay" class="rendered-output teacher-scope-output">
+        {{ teacher_scope_html|safe }}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="output-header">
+    {% if has_answer_key_document and answer_key_text %}
+      <div>
+        <p class="section-label">Printable Student Copy</p>
+        <h2>Student Version</h2>
+      </div>
+    {% else %}
+      <div>
+        <p class="section-label">Generated Output</p>
+        <h2>Generated Content</h2>
+      </div>
+    {% endif %}
+  </div>
 
         <div id="studentMaterialDisplay" class="rendered-output">
           {{ generated_html|safe }}
