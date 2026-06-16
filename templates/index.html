@@ -135,8 +135,7 @@
           <label for="question_type">Question Type</label>
           <select id="question_type" name="question_type">
             <option value="Multiple Choice">Multiple Choice</option>
-            <option value="Essay Questions">Essay Questions</option>
-            <option value="Short Answer">Short Answer</option>
+<option id="essay-question-option" value="Essay Questions">Essay Questions</option>            <option value="Short Answer">Short Answer</option>
             <option value="Mixed">Mixed</option>
           </select>
 
@@ -293,6 +292,9 @@ const classTimeField = document.getElementById("class-time-field");
 
 const economicsOption = document.getElementById("economics-option");
 const computerScienceOption = document.getElementById("computer-science-option");
+const questionTypeSelect = document.getElementById("question_type");
+const essayQuestionOption = document.getElementById("essay-question-option");
+const essayCountInput = document.getElementById("essay_count");
 
 function hideAllDynamicSections() {
   lessonPlanFields.style.display = "none";
@@ -325,7 +327,21 @@ function updateSubjectOptions() {
     computerScienceOption.style.display = "block";
   }
 }
+function toggleEssayOption() {
+  const subject = subjectSelect.value;
 
+  if (subject === "Science" || subject === "Math") {
+    essayQuestionOption.style.display = "none";
+
+    if (questionTypeSelect.value === "Essay Questions") {
+      questionTypeSelect.value = "Short Answer";
+    }
+
+    essayCountInput.value = 0;
+  } else {
+    essayQuestionOption.style.display = "block";
+  }
+}
     function toggleFormSections() {
       const materialType = materialTypeSelect.value;
 
@@ -358,11 +374,13 @@ function updateSubjectOptions() {
     }
 
     materialTypeSelect.addEventListener("change", toggleFormSections);
+    subjectSelect.addEventListener("change", toggleEssayOption);
     gradeLevelSelect.addEventListener("change", updateSubjectOptions);
 
     // Run once when the page loads so irrelevant fields are hidden by default.
     toggleFormSections();
     updateSubjectOptions();
+    toggleEssayOption();
   </script>
 </body>
 </html>
