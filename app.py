@@ -29,9 +29,9 @@ Follow these rules:
 1. Use the teacher's selected grade level, subject, topic, material type, difficulty, class time, and instructions.
 2. Keep the output practical, clear, age-appropriate, and easy for a teacher to copy and edit.
 3. Do not invent citations or URLs.
-4. Before creating a quiz, test, homework assignment, or study guide, define a brief lesson scope showing the key concepts students are expected to know.
+4. Before creating a quiz, test, or homework assignment, define a brief lesson scope showing the key concepts students are expected to know.
 5. Assessment questions must only test concepts included in the lesson scope or explicitly mentioned by the teacher.
-6. For quizzes and tests, include answer keys when requested.
+6. For quizzes, tests, and homework assignments, include answer keys when requested.
 7. For multiple choice questions, provide four answer choices labeled A-D and only one correct answer.
 8. For essay questions, make sure students could reasonably answer using the lesson scope.
 9. For class activities, include simple materials teachers can easily procure, such as paper, index cards, markers, sticky notes, posters, dice, or printable handouts.
@@ -54,8 +54,8 @@ def build_generation_prompt(form_data):
     material type, difficulty, tone, and additional instructions.
 
     Depending on the selected material type, this function adds extra
-    instructions for lesson plans, assessments, class activities, or
-    discussion questions.
+    instructions for lesson plans, assessments, study guides, class activities,
+    or discussion questions.
     """
     material_type = form_data.get("material_type")
 
@@ -86,12 +86,15 @@ def build_generation_prompt(form_data):
         ])
 
     # Assessment-specific prompt instructions.
-    # This section supports quizzes, tests, homework assignments, and study guides.
+    # These are only included for quizzes, tests, and homework assignments.
+    # Study guides are intentionally excluded because they should not behave
+    # like assessments or include answer keys.
     if material_type in ["Quiz", "Test", "Homework Assignment"]:
         subject = form_data.get("subject")
 
         # Math and Science currently avoid essay questions because short answer,
         # multiple choice, and problem-based questions are usually a better fit.
+        # This backend rule protects the app even if the frontend sends essay_count.
         essay_count = "0" if subject in ["Science", "Math"] else form_data.get("essay_count")
 
         prompt_sections.extend([
@@ -112,8 +115,10 @@ def build_generation_prompt(form_data):
             "Do not place the answer key before the student-facing assignment.",
             "",
         ])
+
     # Study guide-specific prompt instructions.
-    # Study guides should summarize and organize concepts rather than act like assessments.
+    # Study guides should summarize and organize concepts rather than act
+    # like quizzes, tests, homework assignments, or problem sets.
     if material_type == "Study Guide":
         prompt_sections.extend([
             "Study Guide Requirements:",
@@ -131,10 +136,10 @@ def build_generation_prompt(form_data):
             "- Core Ideas to Remember",
             "- Examples",
             "- Common Mistakes or Misconceptions",
-            "- Suggested Visuals or Diagram Ideas",
             "- Quick Review Checklist",
             "",
         ])
+
     # Class activity-specific prompt instructions.
     # These help Gemini create structured classroom games, simulations,
     # group activities, debates, role plays, or hands-on activities.
@@ -202,27 +207,60 @@ def generate_with_gemini(prompt):
     return response.text
 
 
-def add_pdf_page_break_before_answer_key(markdown_text):
+def is_assessment_material(material_type):
     """
-    Inserts a print-only page break before the Answer Key section.
+    Checks whether the selected material type should have a separate
+    student-facing document and answer key document.
 
-    This helps keep the student-facing material and the answer key separated
-    when the teacher saves or prints the result as a PDF.
-
-    The raw copied text stays unchanged. Only the rendered HTML/PDF version
-    receives the page break marker.
+    Only assessment-style materials need answer keys.
+    Study guides, lesson plans, class activities, and discussion questions do not.
     """
-    if '<div class="pdf-page-break"></div>' in markdown_text:
-        return markdown_text
 
+    # Define the material types that should be treated like assessments.
+    # These are the only options where an answer key makes product sense.
+    assessment_materials = ["Quiz", "Test", "Homework Assignment"]
+
+    # Return True if the selected material type is one of the assessment types.
+    # Return False for lesson plans, study guides, class activities, and discussions.
+    return material_type in assessment_materials
+
+
+def split_student_material_and_answer_key(markdown_text):
+    """
+    Splits Gemini's generated Markdown into two separate pieces:
+
+    1. student_material:
+       Everything before the Answer Key section.
+
+    2. answer_key:
+       The Answer Key section and everything after it.
+
+    If no Answer Key section is found, the full generated content stays
+    as the student-facing material and the answer key is left empty.
+    """
+
+    # This pattern looks for a line that says "Answer Key".
+    # It works with Markdown headings like:
+    # ## Answer Key
+    # ### Answer Key
+    # Answer Key
     pattern = r"(?im)^((?:#{1,6}\s*)?answer key[^\n]*)$"
 
-    return re.sub(
-        pattern,
-        r'<div class="pdf-page-break"></div>' + "\n\n" + r"\1",
-        markdown_text,
-        count=1
-    )
+    # Search the generated text for the Answer Key heading.
+    match = re.search(pattern, markdown_text)
+
+    # If Gemini did not include an Answer Key heading,
+    # do not split the content.
+    if not match:
+        return markdown_text, ""
+
+    # Everything before the Answer Key heading becomes the student version.
+    student_material = markdown_text[:match.start()].strip()
+
+    # Everything from the Answer Key heading onward becomes the answer key.
+    answer_key = markdown_text[match.start():].strip()
+
+    return student_material, answer_key
 
 
 @app.route("/")
@@ -243,11 +281,12 @@ def generate():
 
     Flow:
     1. Read the submitted form values.
-    2. Build a structured prompt for Gemini.
-    3. Generate the material with Gemini.
-    4. Add a PDF page break before the answer key when applicable.
-    5. Convert the Markdown output into HTML for cleaner display.
-    6. Render the result page with copy, regenerate, and PDF options.
+    2. Store the original form data for the Regenerate button.
+    3. Build a structured prompt for Gemini.
+    4. Generate the material with Gemini.
+    5. If the material is an assessment, split the student version from the answer key.
+    6. Convert the student version and answer key into HTML separately.
+    7. Render the result page with copy, regenerate, and PDF options.
     """
     grade_level = request.form.get("grade_level")
     subject = request.form.get("subject")
@@ -259,18 +298,48 @@ def generate():
     # if the teacher clicks "Regenerate".
     form_data = request.form.to_dict()
 
+    # Build the prompt from the submitted form data.
+    # This turns the teacher's form choices into a structured Gemini prompt.
     prompt = build_generation_prompt(request.form)
+
+    # Send the prompt to Gemini and store the full raw Markdown response.
+    # At this point, generated_text may include both the student material
+    # and the answer key.
     generated_text = generate_with_gemini(prompt)
 
-    # Add print/PDF-specific formatting before converting Markdown to HTML.
-    display_markdown = add_pdf_page_break_before_answer_key(generated_text)
+    # Decide whether this material type should support a separate answer key.
+    # This will only be True for Quiz, Test, and Homework Assignment.
+    has_answer_key_document = is_assessment_material(material_type)
 
-    # Convert the generated Markdown into HTML so the result page is easier
-    # to read and print.
+    # Default behavior:
+    # Treat the full generated response as the student-facing material.
+    # This is what we want for non-assessment materials like Study Guide,
+    # Lesson Plan, Class Activity, and Discussion Questions.
+    student_material_text = generated_text
+    answer_key_text = ""
+
+    # Assessment behavior:
+    # If the material is a quiz, test, or homework assignment,
+    # split the generated content into:
+    # 1. student_material_text: everything before "## Answer Key"
+    # 2. answer_key_text: "## Answer Key" and everything after it
+    if has_answer_key_document:
+        student_material_text, answer_key_text = split_student_material_and_answer_key(generated_text)
+
+    # Convert the student-facing Markdown into HTML for the main result display.
+    # For assessments, this should no longer include the answer key.
+    # For non-assessments, this is just the full generated content.
     generated_html = markdown.markdown(
-        display_markdown,
+        student_material_text,
         extensions=["extra", "nl2br"]
     )
+
+    # Convert the answer key Markdown into HTML only if an answer key exists.
+    # If answer_key_text is empty, keep answer_key_html as an empty string.
+    answer_key_html = markdown.markdown(
+        answer_key_text,
+        extensions=["extra", "nl2br"]
+    ) if answer_key_text else ""
 
     return render_template(
         "result.html",
@@ -279,8 +348,28 @@ def generate():
         topic=topic,
         material_type=material_type,
         difficulty=difficulty,
+
+        # Original full Gemini response.
+        # Useful to keep around for debugging or future full-copy behavior.
         generated_text=generated_text,
+
+        # HTML version of the student-facing material.
         generated_html=generated_html,
+
+        # Raw Markdown version of the student-facing material.
+        student_material_text=student_material_text,
+
+        # Raw Markdown answer key, only used for assessments.
+        answer_key_text=answer_key_text,
+
+        # HTML answer key, only used for assessments.
+        answer_key_html=answer_key_html,
+
+        # Boolean flag result.html can use to decide whether to show
+        # answer-key-specific buttons or sections.
+        has_answer_key_document=has_answer_key_document,
+
+        # Original form data used by the Regenerate button.
         form_data=form_data,
     )
 

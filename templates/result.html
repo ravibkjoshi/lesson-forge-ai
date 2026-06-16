@@ -26,10 +26,32 @@
         <p><strong>Difficulty:</strong> {{ difficulty }}</p>
       </div>
 
-    <div class="copy-actions no-print">
-  <button type="button" onclick="copyGeneratedText()">Copy Generated Text</button>
+<div class="copy-actions no-print">
+  {% if has_answer_key_document and answer_key_text %}
+    <button type="button" onclick="copyTextById('studentMaterialText')">
+      Copy Student Version
+    </button>
 
-  <button type="button" onclick="saveAsPDF()">Save as PDF</button>
+    <button type="button" onclick="copyTextById('answerKeyText')">
+      Copy Answer Key
+    </button>
+
+    <button type="button" onclick="printSection('Student Version', 'studentMaterialDisplay')">
+      Save Student Version as PDF
+    </button>
+
+    <button type="button" onclick="printSection('Answer Key', 'answerKeyDisplay')">
+      Save Answer Key as PDF
+    </button>
+  {% else %}
+    <button type="button" onclick="copyTextById('studentMaterialText')">
+      Copy Generated Text
+    </button>
+
+    <button type="button" onclick="printSection('Generated Material', 'studentMaterialDisplay')">
+      Save as PDF
+    </button>
+  {% endif %}
 
   <form action="/generate" method="POST" class="regenerate-form">
     {% for key, value in form_data.items() %}
@@ -39,34 +61,86 @@
   </form>
 
   <a href="/" class="secondary-button">Create Another</a>
-</div>
+  </div>
+<div class="generated-output">
+  {% if has_answer_key_document and answer_key_text %}
+    <h2>Student Version</h2>
+  {% else %}
+    <h2>Generated Content</h2>
+  {% endif %}
 
-      <div class="generated-output">
-        <h2>Generated Content</h2>
+  <div id="studentMaterialDisplay" class="rendered-output">
+    {{ generated_html|safe }}
+  </div>
 
-        <div id="generatedText" class="rendered-output">
-          {{ generated_html|safe }}
-        </div>
+  {% if has_answer_key_document and answer_key_text %}
+    <div class="answer-key-preview no-print">
+      <h2>Answer Key</h2>
 
-        <textarea id="rawGeneratedText" style="display: none;">{{ generated_text }}</textarea>
+      <div id="answerKeyDisplay" class="rendered-output">
+        {{ answer_key_html|safe }}
       </div>
+    </div>
+  {% endif %}
+
+  <textarea id="studentMaterialText" class="hidden-copy-source">{{ student_material_text }}</textarea>
+  <textarea id="answerKeyText" class="hidden-copy-source">{{ answer_key_text }}</textarea>
+</div>
     </section>
   </main>
 
-  <script>
-    function copyGeneratedText() {
-      const text = document.getElementById("rawGeneratedText").value;
+<script>
+  // Copies text from a hidden textarea.
+  // This lets us copy either the student version or the answer key.
+  function copyTextById(elementId) {
+    const text = document.getElementById(elementId).value;
 
-      navigator.clipboard.writeText(text).then(function() {
-        alert("Generated text copied to clipboard.");
-      }).catch(function() {
-        alert("Copy failed. You can still highlight the text manually.");
-      });
+    navigator.clipboard.writeText(text).then(function() {
+      alert("Text copied to clipboard.");
+    }).catch(function() {
+      alert("Copy failed. You can still highlight the text manually.");
+    });
+  }
+
+  // Opens a small print window with only the selected section.
+  // This lets teachers save the student version and answer key as separate PDFs.
+  function printSection(title, elementId) {
+    const content = document.getElementById(elementId).innerHTML;
+    const printWindow = window.open("", "_blank");
+
+    if (!printWindow) {
+      alert("Please allow pop-ups so the PDF window can open.");
+      return;
     }
 
-    function saveAsPDF() {
-      window.print();
-    }
-  </script>
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>${title}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+      </head>
+      <body>
+        <main class="page-container print-page">
+          <section class="form-card print-card">
+            <h1>${title}</h1>
+            <div class="rendered-output">
+              ${content}
+            </div>
+          </section>
+        </main>
+      </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(function() {
+      printWindow.print();
+    }, 300);
+  }
+</script>
 </body>
 </html>

@@ -239,16 +239,47 @@ button:hover {
     margin-top: 24px;
   }
 
-  .pdf-page-break {
-    break-before: page;
-    page-break-before: always;
-    margin: 0;
-    padding: 0;
-    border: none;
-  }
+
 
   a {
     color: black;
     text-decoration: none;
+  }
+}
+
+.hidden-copy-source {
+  display: none;
+}
+
+.answer-key-preview {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.print-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.print-card {
+  box-shadow: none;
+}
+
+@media print {
+  .answer-key-preview.no-print {
+    display: none;
+  }
+
+  .print-page {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .print-card {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
   }
 }
