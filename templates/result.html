@@ -121,7 +121,7 @@
             </div>
           </div>
         {% endif %}
-
+        <textarea id="teacherScopeText" class="hidden-copy-source">{{ teacher_scope_text }}</textarea>
         <textarea id="studentMaterialText" class="hidden-copy-source">{{ student_material_text }}</textarea>
         <textarea id="answerKeyText" class="hidden-copy-source">{{ answer_key_text }}</textarea>
       </div>
@@ -130,16 +130,23 @@
 
   <script>
     // Copies text from a hidden textarea.
-    // This lets us copy either the student version or the answer key.
-    function copyTextById(elementId) {
-      const text = document.getElementById(elementId).value;
+    // This lets us copy the student version the answer key or the lesson plan.
+   function copyTextById(elementId) {
+    const element = document.getElementById(elementId);
 
-      navigator.clipboard.writeText(text).then(function() {
-        alert("Text copied to clipboard.");
-      }).catch(function() {
-        alert("Copy failed. You can still highlight the text manually.");
-      });
+    if (!element) {
+      alert("Copy failed. The text source could not be found.");
+      return;
     }
+
+    const text = element.value;
+
+    navigator.clipboard.writeText(text).then(function() {
+      alert("Text copied to clipboard.");
+    }).catch(function() {
+      alert("Copy failed. You can still highlight the text manually.");
+    });
+  }
 
     // Opens a small print window with only the selected section.
     // This lets teachers save the student version and answer key as separate PDFs.
