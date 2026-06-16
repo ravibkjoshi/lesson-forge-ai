@@ -106,13 +106,41 @@ def build_generation_prompt(form_data):
             f"Include Answer Key: {form_data.get('include_answer_key')}",
             f"Include Explanations: {form_data.get('include_explanations')}",
             "",
-            "Before writing the questions, include a brief 'Lesson Scope' section that lists the specific concepts students are expected to have learned.",
-            "Only write questions that are answerable from that Lesson Scope.",
+                    # Tell Gemini to use lesson scope as planning logic only.
+            # We do not want "Lesson Scope" printed in the student version.
+            "Before writing the student-facing material, use the lesson scope internally to decide what concepts to assess.",
+            "Do not include the lesson scope in the student version.",
+
+            # Give the student document a predictable heading.
+            # The split helper can use this to remove any setup text before the actual student material.
+            "Start the student-facing material with the exact Markdown heading: ## Student Version",
+
+            # Keep questions fair and limited to the selected topic, grade level, and teacher instructions.
+            "Only write questions that are answerable from the selected topic, grade level, and teacher instructions.",
             "Do not test obscure facts, advanced concepts, or material outside the selected grade level unless the teacher specifically requested it.",
+
+            # Keep multiple choice formatting consistent.
             "If multiple choice questions are requested, each question must have A-D answer choices and one correct answer.",
+
+            # Essay handling, if essay questions are still allowed.
             "If essay questions are requested, include a suggested answer or grading guidance when answer keys are requested.",
+
+            # Give the answer key a predictable heading.
+            # The app uses this heading to split the answer key from the student version.
             "If an answer key is requested, start it with the exact Markdown heading: ## Answer Key",
+
+            # Make the answer key self-contained.
+            # This prevents the answer key PDF from only showing letters like 1. C, 2. D.
+            "The Answer Key must repeat each original question before giving the answer.",
+            "For multiple choice questions, repeat the question and all answer choices before showing the correct answer.",
+            "For short answer or essay questions, repeat the question before showing the answer or grading guidance.",
+
+            # Explanation placement.
+            "If explanations are requested, include the explanation directly under the answer.",
+
+            # Keep the order correct.
             "Do not place the answer key before the student-facing assignment.",
+            "",
             "",
         ])
 
@@ -227,41 +255,34 @@ def is_assessment_material(material_type):
 
 def split_student_material_and_answer_key(markdown_text):
     """
-    Splits Gemini's generated Markdown into two separate pieces:
+    Splits Gemini's generated Markdown into student material and answer key.
 
-    1. student_material:
-       Everything before the Answer Key section.
+    Expected assessment format:
+    ## Student Version
+    student-facing questions
 
-    2. answer_key:
-       The Answer Key section and everything after it.
-
-    If no Answer Key section is found, the full generated content stays
-    as the student-facing material and the answer key is left empty.
+    ## Answer Key
+    repeated questions, answers, and explanations
     """
 
-    # This pattern looks for a line that says "Answer Key".
-    # It works with Markdown headings like:
-    # ## Answer Key
-    # ### Answer Key
-    # Answer Key
-    pattern = r"(?im)^((?:#{1,6}\s*)?answer key[^\n]*)$"
+    student_pattern = r"(?im)^((?:#{1,6}\s*)?student version[^\n]*)$"
+    answer_key_pattern = r"(?im)^((?:#{1,6}\s*)?answer key[^\n]*)$"
 
-    # Search the generated text for the Answer Key heading.
-    match = re.search(pattern, markdown_text)
+    answer_key_match = re.search(answer_key_pattern, markdown_text)
 
-    # If Gemini did not include an Answer Key heading,
-    # do not split the content.
-    if not match:
-        return markdown_text, ""
+    if answer_key_match:
+        student_material = markdown_text[:answer_key_match.start()].strip()
+        answer_key = markdown_text[answer_key_match.start():].strip()
+    else:
+        student_material = markdown_text.strip()
+        answer_key = ""
 
-    # Everything before the Answer Key heading becomes the student version.
-    student_material = markdown_text[:match.start()].strip()
+    student_match = re.search(student_pattern, student_material)
 
-    # Everything from the Answer Key heading onward becomes the answer key.
-    answer_key = markdown_text[match.start():].strip()
+    if student_match:
+        student_material = student_material[student_match.end():].strip()
 
     return student_material, answer_key
-
 
 @app.route("/")
 def index():
