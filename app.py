@@ -34,7 +34,7 @@ Follow these rules:
 6. For quizzes, tests, and homework assignments, include answer keys when requested.
 7. For multiple choice questions, provide four answer choices labeled A-D and only one correct answer.
 8. For essay questions, make sure students could reasonably answer using the lesson scope.
-9. For class activities, include simple materials teachers can easily procure, such as paper, index cards, markers, sticky notes, posters, dice, or printable handouts.
+9. For class activities, follow the selected materials preference. If materials are needed, keep them simple, low-cost, and easy to access.
 10. Do not include unnecessary explanation about how you generated the material.
 11. Use clean Markdown formatting with headings, numbered lists, and bullet points.
 12. Do not use LaTeX math formatting.
@@ -75,6 +75,34 @@ def get_learning_setting_guidance(learning_setting):
     }
 
     return setting_guidance.get(learning_setting, "")
+def build_materials_preference_instruction(materials_preference):
+    """
+    Returns short guidance for the selected materials preference.
+
+    This keeps the prompt token-friendly while still making sure
+    Gemini considers whether the teacher wants no materials, simple
+    household materials, or normal classroom materials.
+    """
+
+    if materials_preference == "Use no physical materials if possible":
+        return (
+            "Materials Preference: Prefer no physical materials. "
+            "If materials help, make them minimal, common, and optional."
+        )
+
+    if materials_preference == "Use simple household materials":
+        return (
+            "Materials Preference: Use only simple household materials when needed. "
+            "Keep the materials list short and inexpensive."
+        )
+
+    if materials_preference == "Materials are fine":
+        return (
+            "Materials Preference: Physical materials are allowed when useful, "
+            "but keep them practical, safe, and age-appropriate."
+        )
+
+    return "Materials Preference: Keep any materials practical and easy to access."
 
 def build_generation_prompt(form_data):
     """
@@ -89,23 +117,29 @@ def build_generation_prompt(form_data):
     """
     material_type = form_data.get("material_type")
     learning_setting = form_data.get("learning_setting")
+    materials_preference = form_data.get("materials_preference")
+
     learning_setting_guidance = get_learning_setting_guidance(learning_setting)
+    materials_preference_guidance = build_materials_preference_instruction(materials_preference)
+    
+    
 
 
 
     prompt_sections = [
-        "Create the following educational material.",
-        "",
-            learning_setting_guidance,
-
-        f"Grade Level: {form_data.get('grade_level')}",
-        f"Subject: {form_data.get('subject')}",
-        f"Topic: {form_data.get('topic')}",
-        f"Material Type: {material_type}",
-        f"Difficulty: {form_data.get('difficulty')}",
-        f"Tone: {form_data.get('tone')}",
-        f"Additional Instructions: {form_data.get('additional_instructions') or 'None provided.'}",
-        "",
+   "Create the following educational material.",
+    "",
+    learning_setting_guidance,
+    materials_preference_guidance,
+    "",
+    f"Grade Level: {form_data.get('grade_level')}",
+    f"Subject: {form_data.get('subject')}",
+    f"Topic: {form_data.get('topic')}",
+    f"Material Type: {material_type}",
+    f"Difficulty: {form_data.get('difficulty')}",
+    f"Tone: {form_data.get('tone')}",
+    f"Additional Instructions: {form_data.get('additional_instructions') or 'None provided.'}",
+    "",
     ]
 
     # Lesson plan-specific prompt instructions.
@@ -264,6 +298,8 @@ def build_generation_prompt(form_data):
         "- Start with a brief overview.",
         "- Then provide the full instructor-ready material.",
         "- Use clean Markdown formatting with headings, numbered lists, and bullet points.",
+        "- Do not use asterisks for bullet points, bold text, or horizontal dividers.",
+        "- Avoid horizontal rules like *** or ---.",
         "- Do not repeat the assignment overview metadata if it is already shown on the results page.",
         "- Do not use LaTeX formatting.",
         "- Do not use dollar signs around equations.",
