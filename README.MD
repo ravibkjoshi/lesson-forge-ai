@@ -220,7 +220,7 @@ markdown
 
 This public MVP uses Gemini directly from the Flask backend.
 
-It does not currently use Tavily, LangChain, PostgreSQL, SQLAlchemy, user accounts, or saved materials. That is intentional for the public MVP. The goal is to keep the app lightweight and focus on the core workflow:
+It does not currently use Tavily, LangChain, PostgreSQL, SQLAlchemy, user accounts, or saved materials. That is intentional for MVP. The goal is to keep the app lightweight and focus on the core workflow:
 
 ```text
 Structured input → AI generation → formatted educational material → copy, regenerate, or PDF export
