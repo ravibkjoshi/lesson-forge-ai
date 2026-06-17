@@ -220,7 +220,6 @@ def build_generation_prompt(form_data):
 # Printable student response spaces.
 # This only affects the student version, not the teacher scope or answer key.
 "Student Version Formatting:",
-"Student Version Formatting:",
 "Use the answer-space markers exactly as instructed.",
 "Do not add answer-space markers after multiple choice questions.",
 "Do not add answer-space markers in the Teacher Lesson Scope or Answer Key.",
