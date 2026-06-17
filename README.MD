@@ -236,7 +236,6 @@ Future versions may add source-grounded generation, saved material libraries, us
 
 Planned next steps:
 
-* Switch the repository private before database and user-account work
 * Add optional source-grounded generation using Tavily
 * Add LangChain orchestration for retrieval and prompt routing
 * Add source notes or reference sources for research-heavy topics
