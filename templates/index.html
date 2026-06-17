@@ -185,52 +185,68 @@ These fields help structure a complete instructor-ready lesson plan.            
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="field">
-              <label for="question_type">Question Type</label>
-              <select id="question_type" name="question_type">
-                <option value="Multiple Choice">Multiple Choice</option>
-                <option id="essay-question-option" value="Essay Questions">Essay Questions</option>
-                <option value="Short Answer">Short Answer</option>
-                <option value="Mixed">Mixed</option>
-              </select>
-            </div>
-<div class="form-group mc-question-count"></div>
-            <div class="field">
-              <label for="multiple_choice_count">Number of Multiple Choice Questions</label>
-              <input
-                type="number"
-                id="multiple_choice_count"
-                name="multiple_choice_count"
-                min="0"
-                max="50"
-                value="5"
-              />
-            </div>
-</div>
-            <div class="field" id="essay-count-wrapper">
-              <label for="essay_count">Number of Essay Questions</label>
-              <input
-                type="number"
-                id="essay_count"
-                name="essay_count"
-                min="0"
-                max="20"
-                value="2"
-              />
-            </div>
-<div class="form-group short-answer-count"></div>
-            <div class="field">
-              <label for="short_answer_count">Number of Short Answer Questions</label>
-              <input
-                type="number"
-                id="short_answer_count"
-                name="short_answer_count"
-                min="0"
-                max="30"
-                value="3"
-              />
-            </div>
+         <div class="form-grid">
+  <div class="field">
+    <label for="question_type">Question Type</label>
+    <select id="question_type" name="question_type">
+      <option value="Multiple Choice">Multiple Choice</option>
+      <option id="essay-question-option" value="Essay Questions">Essay Questions</option>
+      <option value="Short Answer">Short Answer</option>
+      <option value="Mixed">Mixed</option>
+    </select>
+  </div>
+
+  <div class="field mc-question-count">
+    <label for="multiple_choice_count">Number of Multiple Choice Questions</label>
+    <input
+      type="number"
+      id="multiple_choice_count"
+      name="multiple_choice_count"
+      min="0"
+      max="50"
+      value="5"
+    />
+  </div>
+
+  <div class="field essay-question-count" id="essay-count-wrapper">
+    <label for="essay_count">Number of Essay Questions</label>
+    <input
+      type="number"
+      id="essay_count"
+      name="essay_count"
+      min="0"
+      max="20"
+      value="2"
+    />
+  </div>
+
+  <div class="field short-answer-count">
+    <label for="short_answer_count">Number of Short Answer Questions</label>
+    <input
+      type="number"
+      id="short_answer_count"
+      name="short_answer_count"
+      min="0"
+      max="30"
+      value="3"
+    />
+  </div>
+
+  <div class="field">
+    <label for="include_answer_key">Include Answer Key?</label>
+    <select id="include_answer_key" name="include_answer_key">
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="include_explanations">Include Explanations?</label>
+    <select id="include_explanations" name="include_explanations">
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
+  </div>
 </div>
             <div class="field">
               <label for="include_answer_key">Include Answer Key?</label>
@@ -377,143 +393,151 @@ Use this section for guided practice, games, simulations, role plays, debates, d
       </form>
     </section>
   </main>
+<script>
+  const materialTypeSelect = document.getElementById("material_type");
+  const gradeLevelSelect = document.getElementById("grade_level");
+  const subjectSelect = document.getElementById("subject");
 
-  <script>
-    const materialTypeSelect = document.getElementById("material_type");
-    const gradeLevelSelect = document.getElementById("grade_level");
-    const subjectSelect = document.getElementById("subject");
+  const lessonPlanFields = document.getElementById("lesson-plan-fields");
+  const assessmentFields = document.getElementById("assessment-fields");
+  const activityFields = document.getElementById("activity-fields");
+  const discussionFields = document.getElementById("discussion-fields");
+  const classTimeField = document.getElementById("class-time-field");
 
-    const lessonPlanFields = document.getElementById("lesson-plan-fields");
-    const assessmentFields = document.getElementById("assessment-fields");
-    const activityFields = document.getElementById("activity-fields");
-    const discussionFields = document.getElementById("discussion-fields");
-    const classTimeField = document.getElementById("class-time-field");
+  const economicsOption = document.getElementById("economics-option");
+  const computerScienceOption = document.getElementById("computer-science-option");
+  const questionTypeSelect = document.getElementById("question_type");
+  const essayQuestionOption = document.getElementById("essay-question-option");
+  const essayCountInput = document.getElementById("essay_count");
+  const essayCountWrapper = document.getElementById("essay-count-wrapper");
+  const styleStepPill = document.getElementById("style-step-pill");
 
-    const economicsOption = document.getElementById("economics-option");
-    const computerScienceOption = document.getElementById("computer-science-option");
-    const questionTypeSelect = document.getElementById("question_type");
-    const essayQuestionOption = document.getElementById("essay-question-option");
-    const essayCountInput = document.getElementById("essay_count");
-    const essayCountWrapper = document.getElementById("essay-count-wrapper");
-    const styleStepPill = document.getElementById("style-step-pill");
+  const mcQuestionCount = document.querySelector(".mc-question-count");
+  const shortAnswerCount = document.querySelector(".short-answer-count");
 
-    function hideAllDynamicSections() {
-      lessonPlanFields.style.display = "none";
-      assessmentFields.style.display = "none";
-      activityFields.style.display = "none";
-      discussionFields.style.display = "none";
-      classTimeField.style.display = "none";
-    }
+  function hideAllDynamicSections() {
+    lessonPlanFields.style.display = "none";
+    assessmentFields.style.display = "none";
+    activityFields.style.display = "none";
+    discussionFields.style.display = "none";
+    classTimeField.style.display = "none";
+  }
 
-    function updateSubjectOptions() {
-      const gradeLevel = gradeLevelSelect.value;
+  function updateSubjectOptions() {
+    const gradeLevel = gradeLevelSelect.value;
 
-      const elementaryGrades = [
-        "Kindergarten",
-        "1st Grade",
-        "2nd Grade",
-        "3rd Grade",
-        "4th Grade",
-        "5th Grade"
-      ];
+    const elementaryGrades = [
+      "Kindergarten",
+      "1st Grade",
+      "2nd Grade",
+      "3rd Grade",
+      "4th Grade",
+      "5th Grade"
+    ];
 
-      if (elementaryGrades.includes(gradeLevel)) {
-        economicsOption.style.display = "none";
-        computerScienceOption.style.display = "none";
+    if (elementaryGrades.includes(gradeLevel)) {
+      economicsOption.style.display = "none";
+      computerScienceOption.style.display = "none";
 
-        if (subjectSelect.value === "Economics" || subjectSelect.value === "Computer Science") {
-          subjectSelect.value = "";
-        }
-      } else {
-        economicsOption.style.display = "block";
-        computerScienceOption.style.display = "block";
+      if (subjectSelect.value === "Economics" || subjectSelect.value === "Computer Science") {
+        subjectSelect.value = "";
       }
+    } else {
+      economicsOption.style.display = "block";
+      computerScienceOption.style.display = "block";
     }
-
-    function toggleEssayOption() {
-      const subject = subjectSelect.value;
-
-      if (subject === "Science" || subject === "Math") {
-        essayQuestionOption.style.display = "none";
-        essayCountWrapper.style.display = "none";
-
-        if (questionTypeSelect.value === "Essay Questions") {
-          questionTypeSelect.value = "Short Answer";
-        }
-
-        essayCountInput.value = 0;
-      } else {
-        essayQuestionOption.style.display = "block";
-        essayCountWrapper.style.display = "block";
-      }
-    }
-
-    function toggleFormSections() {
-  const materialType = materialTypeSelect.value;
-
-  hideAllDynamicSections();
-
-  const assessmentTypes = [
-    "Quiz",
-    "Test",
-    "Homework Assignment",
-  ];
-
-  let hasDynamicStep = false;
-
-  if (materialType === "Lesson Plan") {
-    lessonPlanFields.style.display = "block";
-    classTimeField.style.display = "block";
-    hasDynamicStep = true;
   }
-
-  if (assessmentTypes.includes(materialType)) {
-    assessmentFields.style.display = "block";
-    hasDynamicStep = true;
-  }
-
-if (materialType === "Learning Activity") {
-  activityFields.style.display = "block";
-  classTimeField.style.display = "block";
-  hasDynamicStep = true;
-}
-
-  if (materialType === "Discussion Questions") {
-    discussionFields.style.display = "block";
-    hasDynamicStep = true;
-  }
-
-  styleStepPill.textContent = hasDynamicStep ? "3" : "2";
-}
-
-    materialTypeSelect.addEventListener("change", toggleFormSections);
-    subjectSelect.addEventListener("change", toggleEssayOption);
-    gradeLevelSelect.addEventListener("change", updateSubjectOptions);
-
-    // Run once when the page loads so irrelevant fields are hidden by default.
-    toggleFormSections();
-    updateSubjectOptions();
-    toggleEssayOption();
-     const shortAnswerCount = document.querySelector(".short-answer-count");
 
   function updateQuestionCountFields() {
     const selectedType = questionTypeSelect.value;
 
+    mcQuestionCount.style.display = "none";
+    essayCountWrapper.style.display = "none";
+    shortAnswerCount.style.display = "none";
+
     if (selectedType === "Multiple Choice") {
       mcQuestionCount.style.display = "block";
-      shortAnswerCount.style.display = "none";
-    } else if (selectedType === "Short Answer") {
-      mcQuestionCount.style.display = "none";
+    }
+
+    if (selectedType === "Essay Questions") {
+      essayCountWrapper.style.display = "block";
+    }
+
+    if (selectedType === "Short Answer") {
       shortAnswerCount.style.display = "block";
-    } else if (selectedType === "Mixed") {
+    }
+
+    if (selectedType === "Mixed") {
       mcQuestionCount.style.display = "block";
       shortAnswerCount.style.display = "block";
     }
   }
 
+  function toggleEssayOption() {
+    const subject = subjectSelect.value;
+
+    if (subject === "Science" || subject === "Math") {
+      essayQuestionOption.style.display = "none";
+
+      if (questionTypeSelect.value === "Essay Questions") {
+        questionTypeSelect.value = "Short Answer";
+      }
+
+      essayCountInput.value = 0;
+    } else {
+      essayQuestionOption.style.display = "block";
+    }
+
+    updateQuestionCountFields();
+  }
+
+  function toggleFormSections() {
+    const materialType = materialTypeSelect.value;
+
+    hideAllDynamicSections();
+
+    const assessmentTypes = [
+      "Quiz",
+      "Test",
+      "Homework Assignment"
+    ];
+
+    let hasDynamicStep = false;
+
+    if (materialType === "Lesson Plan") {
+      lessonPlanFields.style.display = "block";
+      classTimeField.style.display = "block";
+      hasDynamicStep = true;
+    }
+
+    if (assessmentTypes.includes(materialType)) {
+      assessmentFields.style.display = "block";
+      hasDynamicStep = true;
+    }
+
+    if (materialType === "Learning Activity") {
+      activityFields.style.display = "block";
+      classTimeField.style.display = "block";
+      hasDynamicStep = true;
+    }
+
+    if (materialType === "Discussion Questions") {
+      discussionFields.style.display = "block";
+      hasDynamicStep = true;
+    }
+
+    styleStepPill.textContent = hasDynamicStep ? "3" : "2";
+  }
+
+  materialTypeSelect.addEventListener("change", toggleFormSections);
+  subjectSelect.addEventListener("change", toggleEssayOption);
+  gradeLevelSelect.addEventListener("change", updateSubjectOptions);
   questionTypeSelect.addEventListener("change", updateQuestionCountFields);
 
+  toggleFormSections();
+  updateSubjectOptions();
+  toggleEssayOption();
   updateQuestionCountFields();
-  </script>
+</script>
 </body>
 </html>
