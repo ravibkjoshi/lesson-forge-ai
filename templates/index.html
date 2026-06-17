@@ -6,6 +6,7 @@
   <title>LessonForge AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
   <main class="page-container">
     <section class="hero app-hero">
@@ -194,7 +195,7 @@ These fields help structure a complete instructor-ready lesson plan.            
                 <option value="Mixed">Mixed</option>
               </select>
             </div>
-
+<div class="form-group mc-question-count"></div>
             <div class="field">
               <label for="multiple_choice_count">Number of Multiple Choice Questions</label>
               <input
@@ -206,7 +207,7 @@ These fields help structure a complete instructor-ready lesson plan.            
                 value="5"
               />
             </div>
-
+</div>
             <div class="field" id="essay-count-wrapper">
               <label for="essay_count">Number of Essay Questions</label>
               <input
@@ -218,7 +219,7 @@ These fields help structure a complete instructor-ready lesson plan.            
                 value="2"
               />
             </div>
-
+<div class="form-group short-answer-count"></div>
             <div class="field">
               <label for="short_answer_count">Number of Short Answer Questions</label>
               <input
@@ -230,7 +231,7 @@ These fields help structure a complete instructor-ready lesson plan.            
                 value="3"
               />
             </div>
-
+</div>
             <div class="field">
               <label for="include_answer_key">Include Answer Key?</label>
               <select id="include_answer_key" name="include_answer_key">
@@ -493,6 +494,26 @@ if (materialType === "Learning Activity") {
     toggleFormSections();
     updateSubjectOptions();
     toggleEssayOption();
+     const shortAnswerCount = document.querySelector(".short-answer-count");
+
+  function updateQuestionCountFields() {
+    const selectedType = questionTypeSelect.value;
+
+    if (selectedType === "Multiple Choice") {
+      mcQuestionCount.style.display = "block";
+      shortAnswerCount.style.display = "none";
+    } else if (selectedType === "Short Answer") {
+      mcQuestionCount.style.display = "none";
+      shortAnswerCount.style.display = "block";
+    } else if (selectedType === "Mixed") {
+      mcQuestionCount.style.display = "block";
+      shortAnswerCount.style.display = "block";
+    }
+  }
+
+  questionTypeSelect.addEventListener("change", updateQuestionCountFields);
+
+  updateQuestionCountFields();
   </script>
 </body>
 </html>
