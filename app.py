@@ -298,7 +298,7 @@ def build_generation_prompt(form_data):
         "- Start with a brief overview.",
         "- Then provide the full instructor-ready material.",
         "- Use clean Markdown formatting with headings, numbered lists, and bullet points.",
-        "- Do not use asterisks for bullet points, bold text, or horizontal dividers.",
+        "- Do not use asterisks for bullet points, bold text, or horizontal dividers ever.",
         "- Avoid horizontal rules like *** or ---.",
         "- Do not repeat the assignment overview metadata if it is already shown on the results page.",
         "- Do not use LaTeX formatting.",
