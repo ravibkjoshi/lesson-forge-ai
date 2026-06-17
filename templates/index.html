@@ -104,8 +104,7 @@ discussion questions, and learning activities from a simple guided workflow.
                 <option value="Homework Assignment">Homework Assignment</option>
                 <option value="Study Guide">Study Guide</option>
                 <option value="Discussion Questions">Discussion Questions</option>
-                <option value="Class Activity">Class Activity</option>
-              </select>
+<option value="Learning Activity">Learning Activity</option>              </select>
             </div>
 
             <div class="field">
@@ -119,7 +118,7 @@ discussion questions, and learning activities from a simple guided workflow.
             </div>
 
             <div class="field" id="class-time-field">
-              <label for="lesson_length">Estimated Class Time</label>
+<label for="lesson_length">Estimated Time</label>
               <select id="lesson_length" name="lesson_length">
                 <option value="30 minutes">30 minutes</option>
                 <option value="45 minutes">45 minutes</option>
@@ -250,31 +249,18 @@ These fields help structure a complete instructor-ready lesson plan.            
           </div>
         </div>
 
-        <!-- Activity options: only visible for Class Activity -->
-        <div class="form-section dynamic-section" id="activity-fields">
+<!-- Learning activity options: only visible for Learning Activity -->        <div class="form-section dynamic-section" id="activity-fields">
           <div class="section-header">
             <span class="step-pill">2</span>
             <div>
-              <h2>Class Activity Options</h2>
+              <h2>Learning Activity Options</h2>
               <p class="helper-text">
-                Use this section for games, simulations, role plays, debates, or group exercises.
-              </p>
+Use this section for guided practice, games, simulations, role plays, debates, discussions, or hands-on learning.              </p>
             </div>
           </div>
 
           <div class="form-grid">
-            <div class="field">
-              <label for="activity_style">Activity Style</label>
-              <select id="activity_style" name="activity_style">
-                <option value="Group Activity">Group Activity</option>
-                <option value="Classroom Game">Classroom Game</option>
-                <option value="Role Play">Role Play</option>
-                <option value="Debate">Debate</option>
-                <option value="Simulation">Simulation</option>
-                <option value="Hands-On Activity">Hands-On Activity</option>
-                <option value="Discussion-Based Activity">Discussion-Based Activity</option>
-              </select>
-            </div>
+          
 
             <div class="field">
               <label for="materials_preference">Materials Preference</label>
@@ -485,11 +471,11 @@ These fields help structure a complete instructor-ready lesson plan.            
     hasDynamicStep = true;
   }
 
-  if (materialType === "Class Activity") {
-    activityFields.style.display = "block";
-    classTimeField.style.display = "block";
-    hasDynamicStep = true;
-  }
+if (materialType === "Learning Activity") {
+  activityFields.style.display = "block";
+  classTimeField.style.display = "block";
+  hasDynamicStep = true;
+}
 
   if (materialType === "Discussion Questions") {
     discussionFields.style.display = "block";
