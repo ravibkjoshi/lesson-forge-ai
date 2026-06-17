@@ -615,3 +615,75 @@ button:hover {
 .teacher-scope-output ol {
   margin-bottom: 0;
 }
+
+/* Printable answer spaces for student assessments */
+.answer-space {
+  margin: 10px 0 24px;
+  border-radius: 10px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 30px,
+    #cbd5e1 31px
+  );
+}
+
+.short-answer-space {
+  min-height: 96px;
+}
+
+.work-space {
+  min-height: 150px;
+}
+
+.essay-space {
+  min-height: 260px;
+}
+
+@media print {
+  .answer-space {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+/* Printable answer spaces for student assessments */
+.answer-space {
+  margin: 12px 0 26px;
+  border-radius: 10px;
+}
+
+/* Lined space for normal written short answers */
+.short-answer-space {
+  min-height: 96px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 30px,
+    #cbd5e1 31px
+  );
+}
+
+/* Larger lined space for essays */
+.essay-space {
+  min-height: 260px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 30px,
+    #cbd5e1 31px
+  );
+}
+
+/* Blank workspace for math, science, calculations, diagrams, and messy work */
+.blank-work-space {
+  min-height: 170px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+}
+
+@media print {
+  .answer-space {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

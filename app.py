@@ -117,6 +117,18 @@ def build_generation_prompt(form_data):
 # Give the student document a predictable heading.
 # The split helper can use this to separate the student material cleanly.
 "Start the student-facing material with the exact Markdown heading: ## Student Version",
+*get_answer_space_instructions(subject),
+# Printable student response spaces.
+# This only affects the student version, not the teacher scope or answer key.
+"Student Version Formatting:",
+"Add printable answer space in the student version only for short answer, essay, and math/problem-solving questions.",
+"Do not add answer spaces in the Teacher Lesson Scope or Answer Key.",
+"Do not add answer spaces after multiple choice questions.",
+"Put each answer-space HTML block on its own line with a blank line before and after it.",
+'For short answer questions, place this exact HTML after the question: <div class="answer-space short-answer-space"></div>',
+'For essay questions, place this exact HTML after the question: <div class="answer-space essay-space"></div>',
+'For math or calculation questions that require work, place this exact HTML after the question: <div class="answer-space work-space"></div>',
+"When repeating questions in the answer key, do not include or repeat any answer-space HTML.",
 
             # Keep questions fair and limited to the selected topic, grade level, and teacher instructions.
             "Only write questions that are answerable from the selected topic, grade level, and teacher instructions.",
@@ -254,7 +266,65 @@ def is_assessment_material(material_type):
     # Return True if the selected material type is one of the assessment types.
     # Return False for lesson plans, study guides, class activities, and discussions.
     return material_type in assessment_materials
+def get_answer_space_instructions(subject):
+    """
+    Returns lightweight prompt instructions for printable student answer spaces.
 
+    We use simple markers instead of asking Gemini to write HTML directly.
+    Python later converts those markers into styled HTML blocks.
+    """
+
+    if subject in ["Math", "Science"]:
+        return [
+            "For student-facing non-multiple-choice questions, place [BLANK_WORK_SPACE] after the question.",
+            "Do not add answer-space markers after multiple choice questions.",
+            "Do not add answer-space markers in the Teacher Lesson Scope or Answer Key.",
+        ]
+
+    return [
+        "For student-facing short answer questions, place [SHORT_ANSWER_SPACE] after the question.",
+        "For student-facing essay questions, place [ESSAY_SPACE] after the question.",
+        "Do not add answer-space markers after multiple choice questions.",
+        "Do not add answer-space markers in the Teacher Lesson Scope or Answer Key.",
+    ]
+
+
+def apply_answer_space_markers(markdown_text):
+    """
+    Converts answer-space markers into HTML blocks.
+
+    This only runs on the student version, so the teacher scope and answer key
+    stay clean.
+    """
+
+    replacements = {
+        "[SHORT_ANSWER_SPACE]": '<div class="answer-space short-answer-space"></div>',
+        "[ESSAY_SPACE]": '<div class="answer-space essay-space"></div>',
+        "[BLANK_WORK_SPACE]": '<div class="answer-space blank-work-space"></div>',
+    }
+
+    for marker, html in replacements.items():
+        markdown_text = markdown_text.replace(marker, f"\n\n{html}\n\n")
+
+    return markdown_text
+
+
+def remove_answer_space_markers(markdown_text):
+    """
+    Removes any answer-space markers that accidentally appear outside
+    the student version.
+    """
+
+    markers = [
+        "[SHORT_ANSWER_SPACE]",
+        "[ESSAY_SPACE]",
+        "[BLANK_WORK_SPACE]",
+    ]
+
+    for marker in markers:
+        markdown_text = markdown_text.replace(marker, "")
+
+    return markdown_text
 
 def split_assessment_sections(markdown_text):
     """
@@ -370,6 +440,9 @@ def generate():
     # 2. answer_key_text: "## Answer Key" and everything after it
     if has_answer_key_document:
           teacher_scope_text, student_material_text, answer_key_text = split_assessment_sections(generated_text)
+    student_material_text = apply_answer_space_markers(student_material_text)
+    teacher_scope_text = remove_answer_space_markers(teacher_scope_text)
+    answer_key_text = remove_answer_space_markers(answer_key_text)
 
     # Convert the student-facing Markdown into HTML for the main result display.
     # For assessments, this should no longer include the answer key.

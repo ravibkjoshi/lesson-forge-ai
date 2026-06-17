@@ -1,59 +1,116 @@
 # LessonForge AI
 
-LessonForge AI is a Flask-based web app that helps teachers generate classroom-ready educational materials using AI.
+LessonForge AI is a Flask-based AI education web app that helps teachers generate classroom-ready instructional materials from a structured form.
 
-Teachers can enter a grade level, subject, topic, difficulty, class time, material type, and optional instructions. The app then uses Google Gemini to generate structured teaching materials such as lesson plans, quizzes, tests, homework assignments, study guides, discussion questions, and class activities.
+Teachers can select the grade level, subject, topic, material type, difficulty level, class time, question types, and style preferences. The app then uses Google Gemini to generate clean, editable educational materials that are easier to copy, print, regenerate, or save as PDFs.
 
-The goal of this MVP is to create a simple, practical tool that turns structured teacher inputs into editable, printable classroom content.
+## What This Project Does
 
-## Features
+LessonForge AI can generate:
 
-* Generate classroom-ready educational materials from a structured form
-* Supports multiple material types:
+* Lesson plans
+* Quizzes
+* Tests
+* Homework assignments
+* Study guides
+* Discussion questions
+* Class activities
 
-  * Lesson plans
-  * Quizzes
-  * Tests
-  * Homework assignments
-  * Study guides
-  * Discussion questions
-  * Class activities
-* Dynamic form sections based on the selected material type
-* Gemini-powered content generation
-* Prompt logic tailored to each material type
-* Markdown rendering for cleaner generated output
-* Copy-to-clipboard button for easy editing
-* Browser-based PDF export
-* Print/PDF formatting that separates the student-facing assignment from the answer key
-* Clean, responsive UI built with HTML and CSS
+The goal is to turn a teacher’s structured inputs into practical, classroom-ready materials without requiring the teacher to write a long prompt from scratch.
+
+## Current Features
+
+* Structured form for selecting grade level, subject, topic, material type, difficulty, and tone
+* Dynamic prompt-building based on the selected material type
+* Google Gemini integration using `gemini-2.5-flash`
+* Teacher-friendly Markdown output
+* Markdown-to-HTML rendering for clean browser display
+* Assessment-specific logic for quizzes, tests, and homework assignments
+* Separate teacher lesson scope for assessments
+* Separate student version and answer key sections
+* Copy buttons for generated content
+* Student PDF and answer key PDF options
+* Regenerate button that resubmits the original form inputs
+* Clean responsive UI with custom CSS
+* Environment variable support with `.env`
+* Local Flask development server
+
+## Material-Specific Behavior
+
+LessonForge AI does not use one generic prompt for every request. The backend builds different instructions depending on the material type selected.
+
+### Lesson Plans
+
+Lesson plans include structure for:
+
+* Overview
+* Learning objective
+* Materials
+* Warm-up / Do Now, if requested
+* Direct instruction
+* Guided practice
+* Independent practice
+* Assessment
+* Exit ticket
+* Teacher notes
+
+### Quizzes, Tests, and Homework Assignments
+
+Assessment-style materials include:
+
+* A teacher-facing lesson scope
+* A student-facing version
+* Optional answer key
+* Optional explanations
+* Multiple choice, short answer, essay, or mixed question formats
+
+The app also includes backend logic to prevent essay questions for Math and Science, where short answer, multiple choice, and problem-based questions are usually a better fit.
+
+### Study Guides
+
+Study guides are treated separately from assessments. They are designed to summarize and organize concepts rather than behave like quizzes or tests.
+
+Study guides can include:
+
+* Overview
+* Key concepts
+* Important vocabulary
+* Core ideas to remember
+* Examples
+* Common mistakes or misconceptions
+* Quick review checklist
+
+### Class Activities
+
+Class activities can include:
+
+* Classroom games
+* Group activities
+* Role plays
+* Debates
+* Simulations
+* Hands-on activities
+* Discussion-based activities
+
+The prompt asks Gemini to keep materials simple, low-cost, and realistic for classroom use.
+
+### Discussion Questions
+
+Discussion question outputs are formatted as teacher-ready prompts with optional follow-up questions.
 
 ## Tech Stack
 
 * Python
 * Flask
+* Jinja2 templates
 * Google Gemini API
-* HTML
-* CSS
+* `google-genai`
+* Markdown rendering
+* HTML/CSS
 * JavaScript
-* Markdown
-* python-dotenv
-
-## What This Project Demonstrates
-
-This project demonstrates how a simple web application can use an AI model to generate useful, structured content from user inputs.
-
-It shows:
-
-* Building a Flask web app with multiple routes
-* Creating dynamic forms with HTML and JavaScript
-* Passing form data from the frontend to a Flask backend
-* Building structured prompts based on user selections
-* Calling the Google Gemini API from Python
-* Rendering AI-generated Markdown as HTML
-* Adding copy-to-clipboard functionality
-* Adding browser-based PDF export
-* Formatting printed/PDF output with CSS
-* Separating answer keys from student-facing materials in PDF output
+* Python dotenv
+* SQLAlchemy / Flask-SQLAlchemy dependencies added for future database work
+* PostgreSQL dependency added through `psycopg2-binary`
 
 ## Project Structure
 
@@ -70,77 +127,9 @@ lesson-forge-ai/
     └── styles.css
 ```
 
-## How It Works
-
-1. A teacher fills out the form on the homepage.
-2. The form sends the teacher's selections to the Flask backend.
-3. Flask builds a prompt based on the selected material type.
-4. The app sends the prompt to Google Gemini.
-5. Gemini returns classroom-ready educational content.
-6. The app converts the Markdown response into formatted HTML.
-7. The result page displays the generated content.
-8. The teacher can copy the content or save it as a PDF.
-
-## Setup Instructions
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/YOUR-USERNAME/lesson-forge-ai.git
-cd lesson-forge-ai
-```
-
-### 2. Create a virtual environment
-
-```bash
-python3 -m venv .venv
-```
-
-### 3. Activate the virtual environment
-
-On macOS/Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-On Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-### 4. Install dependencies
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-### 5. Create a `.env` file
-
-Create a `.env` file in the root folder and add your Google API key:
-
-```env
-GOOGLE_API_KEY=your_google_api_key_here
-```
-
-### 6. Run the app
-
-```bash
-python3 app.py
-```
-
-Then open:
-
-```text
-http://localhost:5050
-```
-
 ## Environment Variables
 
-This project uses `python-dotenv` to load environment variables from a local `.env` file.
-
-Required variable:
+Create a `.env` file in the root directory and add your Google API key:
 
 ```env
 GOOGLE_API_KEY=your_google_api_key_here
@@ -148,42 +137,85 @@ GOOGLE_API_KEY=your_google_api_key_here
 
 The `.env` file should not be committed to GitHub.
 
-## Requirements
+## How to Run Locally
 
-The project dependencies are listed in `requirements.txt`:
+Clone the repository:
 
-```text
-google-genai
-python-dotenv
-flask
-markdown
+```bash
+git clone https://github.com/ravibkjoshi/lesson-forge-ai.git
+cd lesson-forge-ai
 ```
 
-## MVP Notes
+Create and activate a virtual environment:
 
-This version uses Gemini directly from the Flask backend. It does not currently use Tavily or LangChain.
-
-That was intentional for the MVP. The goal was to keep the app lightweight, reduce unnecessary token usage, and focus on the core workflow:
-
-```text
-Teacher input → AI generation → formatted classroom material → copy or PDF export
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-Future versions may add optional source-grounded generation using Tavily and LangChain for subjects or topics that benefit from reputable external sources.
+Install dependencies:
 
-## Future Improvements
+```bash
+pip install -r requirements.txt
+```
 
-Possible next steps:
+Create your `.env` file:
 
-* Add optional source-grounded generation using Tavily
-* Add LangChain orchestration for retrieval and prompt routing
-* Add user accounts and saved lesson history
-* Add editable generated content before PDF export
-* Add downloadable `.docx` support
-* Add standards alignment options
-* Add source citations for research-heavy topics
-* Add templates for specific teaching formats
-* Improve PDF layout with more advanced backend PDF generation
+```bash
+touch .env
+```
+
+Add your Google API key to `.env`:
+
+```env
+GOOGLE_API_KEY=your_google_api_key_here
+```
+
+Run the Flask app:
+
+```bash
+python3 app.py
+```
+
+Open the app in your browser:
+
+```text
+http://localhost:5050
+```
+
+## What This Project Demonstrates
+
+This project demonstrates how to build a practical AI-powered web app that combines a traditional Flask application with LLM-based content generation.
+
+It shows experience with:
+
+* Building a Flask web application
+* Designing a structured user workflow
+* Creating dynamic prompts based on form inputs
+* Integrating Google Gemini into a Python app
+* Rendering AI-generated Markdown as HTML
+* Separating student-facing and teacher-facing outputs
+* Handling environment variables securely
+* Building a polished frontend with HTML, CSS, and Jinja templates
+* Planning for future database-backed features with SQLAlchemy and PostgreSQL
+
+## Planned Improvements
+
+Planned next steps include:
+
+* Add audience options for teachers, tutors, and homeschool parents
+* Dynamically adjust activity options based on the selected audience
+* Add PostgreSQL setup
+* Add SQLAlchemy models
+* Create a `SavedMaterial` model
+* Add a Save Material button
+* Add a Saved Materials page
+* Add user accounts and login so each user has their own saved material library
+* Make the repository private before storing real user-generated materials or account data
+
+## Notes
+
+This is an early-stage portfolio project. The current version focuses on generating useful classroom materials from structured form inputs. Future versions will add persistence, saved materials, and user-specific libraries.
 
 ## Why I Built This
 
