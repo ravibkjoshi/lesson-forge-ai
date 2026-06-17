@@ -674,7 +674,7 @@ button:hover {
   );
 }
 
-/* Blank workspace for math,  science, calculations, diagrams, and messy work */
+/* Blank workspace for math, science, calculations, diagrams, and messy work */
 .blank-work-space {
   min-height: 170px;
   border: 1px solid #cbd5e1;
