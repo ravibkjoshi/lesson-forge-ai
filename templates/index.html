@@ -10,14 +10,14 @@
   <main class="page-container">
     <section class="hero app-hero">
       <p class="eyebrow">LessonForge AI</p>
-      <h1>Create classroom-ready materials faster</h1>
+    <h1>Create learning materials faster</h1>
       <p>
-        Generate lesson plans, quizzes, tests, homework assignments, study guides,
-        discussion questions, and class activities from a structured teacher workflow.
+       Generate lesson plans, quizzes, tests, homework assignments, study guides,
+discussion questions, and learning activities from a simple guided workflow.
       </p>
 
       <div class="hero-badges">
-        <span>Teacher-ready</span>
+        <span>Instructor-ready</span>
         <span>Printable</span>
         <span>Editable</span>
       </div>
@@ -33,7 +33,7 @@
             <div>
               <h2>Core Details</h2>
               <p class="helper-text">
-                Start with the basics so the generated material matches the class and topic.
+                Start with the basics so the generated material matches the subject and topic.
               </p>
             </div>
           </div>
@@ -345,25 +345,25 @@
 
         <!-- Style preferences: always visible -->
         <div class="form-section">
-          <div class="section-header">
-            <span class="step-pill">3</span>
-            <div>
-              <h2>Style Preferences</h2>
-              <p class="helper-text">
-                Add tone and any extra instructions you want reflected in the output.
-              </p>
-            </div>
-          </div>
+  <div class="section-header">
+    <span class="step-pill" id="style-step-pill">2</span>
+    <div>
+      <h2>Style Preferences</h2>
+      <p class="helper-text">
+        Choose how the material should sound and add any extra instructions.
+      </p>
+    </div>
+  </div>
 
           <div class="form-grid">
             <div class="field">
-              <label for="tone">Tone</label>
-              <select id="tone" name="tone">
-                <option value="Clear and teacher-friendly">Clear and teacher-friendly</option>
-                <option value="Simple and beginner-friendly">Simple and beginner-friendly</option>
-                <option value="Academic">Academic</option>
-                <option value="Engaging and interactive">Engaging and interactive</option>
-              </select>
+         <label for="tone">Output Style</label>
+<select id="tone" name="tone">
+  <option value="Simple and beginner-friendly">Simple and beginner-friendly</option>
+  <option value="Clear and practical">Clear and practical</option>
+  <option value="Academic">Academic</option>
+  <option value="Engaging and interactive">Engaging and interactive</option>
+</select>
             </div>
 
             <div class="field field-wide">
@@ -407,6 +407,7 @@
     const essayQuestionOption = document.getElementById("essay-question-option");
     const essayCountInput = document.getElementById("essay_count");
     const essayCountWrapper = document.getElementById("essay-count-wrapper");
+    const styleStepPill = document.getElementById("style-step-pill");
 
     function hideAllDynamicSections() {
       lessonPlanFields.style.display = "none";
@@ -460,34 +461,42 @@
     }
 
     function toggleFormSections() {
-      const materialType = materialTypeSelect.value;
+  const materialType = materialTypeSelect.value;
 
-      hideAllDynamicSections();
+  hideAllDynamicSections();
 
-      const assessmentTypes = [
-        "Quiz",
-        "Test",
-        "Homework Assignment",
-      ];
+  const assessmentTypes = [
+    "Quiz",
+    "Test",
+    "Homework Assignment",
+  ];
 
-      if (materialType === "Lesson Plan") {
-        lessonPlanFields.style.display = "block";
-        classTimeField.style.display = "block";
-      }
+  let hasDynamicStep = false;
 
-      if (assessmentTypes.includes(materialType)) {
-        assessmentFields.style.display = "block";
-      }
+  if (materialType === "Lesson Plan") {
+    lessonPlanFields.style.display = "block";
+    classTimeField.style.display = "block";
+    hasDynamicStep = true;
+  }
 
-      if (materialType === "Class Activity") {
-        activityFields.style.display = "block";
-        classTimeField.style.display = "block";
-      }
+  if (assessmentTypes.includes(materialType)) {
+    assessmentFields.style.display = "block";
+    hasDynamicStep = true;
+  }
 
-      if (materialType === "Discussion Questions") {
-        discussionFields.style.display = "block";
-      }
-    }
+  if (materialType === "Class Activity") {
+    activityFields.style.display = "block";
+    classTimeField.style.display = "block";
+    hasDynamicStep = true;
+  }
+
+  if (materialType === "Discussion Questions") {
+    discussionFields.style.display = "block";
+    hasDynamicStep = true;
+  }
+
+  styleStepPill.textContent = hasDynamicStep ? "3" : "2";
+}
 
     materialTypeSelect.addEventListener("change", toggleFormSections);
     subjectSelect.addEventListener("change", toggleEssayOption);
