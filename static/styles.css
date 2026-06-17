@@ -783,3 +783,31 @@ button:active {
 .form-section {
   overflow: visible;
 }
+
+.create-another-button {
+  background: linear-gradient(135deg, var(--primary), #6a5cf3);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.28);
+}
+
+.create-another-button:hover {
+  background: linear-gradient(135deg, var(--primary), #6a5cf3);
+  color: #ffffff;
+  filter: brightness(1.05);
+  box-shadow: 0 16px 30px rgba(79, 70, 229, 0.34);
+}
+.student-info-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+  margin-bottom: 8px;
+}
+
+.student-info-blank {
+  flex: 1;
+  min-width: 160px;
+  border-bottom: 1px solid #1a1c33;
+  height: 1.2em;
+}

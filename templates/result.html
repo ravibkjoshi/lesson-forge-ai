@@ -33,47 +33,52 @@
         </div>
       </div>
 
-      <div class="copy-actions no-print">
-        {% if has_answer_key_document and answer_key_text %}
-        {% if teacher_scope_text %}
-  <button class="button-secondary" type="button" onclick="copyTextById('teacherScopeText')">
-    Copy {{ role_label }} Scope
-  </button>
-{% endif %}  
-        <button class="button-primary" type="button" onclick="copyTextById('studentMaterialText')">
-            Copy Student Version
-          </button>
+     <div class="copy-actions no-print">
+  {% if has_answer_key_document and answer_key_text %}
+    {% if teacher_scope_text %}
+      <button class="button-secondary" type="button" onclick="copyTextById('teacherScopeText')">
+        Copy {{ role_label }} Scope
+      </button>
 
-          <button class="button-secondary" type="button" onclick="copyTextById('answerKeyText')">
-            Copy Answer Key
-          </button>
+      <button class="button-secondary" type="button" onclick="printSection('{{ role_label }} Lesson Scope', 'teacherScopeDisplay')">
+        Save {{ role_label }} Scope PDF
+      </button>
+    {% endif %}
 
-          <button class="button-secondary" type="button" onclick="printSection('Student Version', 'studentMaterialDisplay')">
-            Save Student PDF
-          </button>
+    <button class="button-secondary" type="button" onclick="copyTextById('studentMaterialText')">
+      Copy Student Version
+    </button>
 
-          <button class="button-secondary" type="button" onclick="printSection('Answer Key', 'answerKeyDisplay')">
-            Save Answer Key PDF
-          </button>
-        {% else %}
-          <button class="button-primary" type="button" onclick="copyTextById('studentMaterialText')">
-            Copy Generated Text
-          </button>
+    <button class="button-secondary" type="button" onclick="printSection('Student Version', 'studentMaterialDisplay')">
+      Save Student PDF
+    </button>
 
-          <button class="button-secondary" type="button" onclick="printSection('Generated Material', 'studentMaterialDisplay')">
-            Save as PDF
-          </button>
-        {% endif %}
+    <button class="button-secondary" type="button" onclick="copyTextById('answerKeyText')">
+      Copy Answer Key
+    </button>
 
-        <form action="/generate" method="POST" class="regenerate-form">
-          {% for key, value in form_data.items() %}
-            <input type="hidden" name="{{ key }}" value="{{ value }}">
-          {% endfor %}
-          <button class="button-secondary" type="submit">Regenerate</button>
-        </form>
+    <button class="button-secondary" type="button" onclick="printSection('Answer Key', 'answerKeyDisplay')">
+      Save Answer Key PDF
+    </button>
+  {% else %}
+    <button class="button-secondary" type="button" onclick="copyTextById('studentMaterialText')">
+      Copy Generated Text
+    </button>
 
-        <a href="/" class="secondary-button">Create Another</a>
-      </div>
+    <button class="button-secondary" type="button" onclick="printSection('Generated Material', 'studentMaterialDisplay')">
+      Save as PDF
+    </button>
+  {% endif %}
+
+  <form action="/generate" method="POST" class="regenerate-form">
+    {% for key, value in form_data.items() %}
+      <input type="hidden" name="{{ key }}" value="{{ value }}">
+    {% endfor %}
+    <button class="button-secondary" type="submit">Regenerate</button>
+  </form>
+
+  <a href="/" class="secondary-button create-another-button">Create Another</a>
+</div>
 
  <div class="generated-output">
   {% if has_answer_key_document and teacher_scope_text %}
@@ -130,9 +135,17 @@
   </main>
 
   <script>
-    // Copies text from a hidden textarea.
-    // This lets us copy the student version the answer key or the lesson plan.
-   function copyTextById(elementId) {
+  // Removes printable answer-space HTML from copied plain text.
+  function cleanCopiedText(text) {
+    return text
+      .replace(/<div class="answer-space[^"]*"><\/div>/g, "\n\n______________________________\n\n")
+      .replace(/\n{4,}/g, "\n\n\n")
+      .trim();
+  }
+
+  // Copies text from a hidden textarea.
+  // This lets us copy the student version, the answer key, or the lesson scope.
+  function copyTextById(elementId) {
     const element = document.getElementById(elementId);
 
     if (!element) {
@@ -140,7 +153,7 @@
       return;
     }
 
-    const text = element.value;
+    const text = cleanCopiedText(element.value);
 
     navigator.clipboard.writeText(text).then(function() {
       alert("Text copied to clipboard.");
@@ -149,45 +162,44 @@
     });
   }
 
-    // Opens a small print window with only the selected section.
-    // This lets teachers save the student version and answer key as separate PDFs.
-    function printSection(title, elementId) {
-      const content = document.getElementById(elementId).innerHTML;
-      const printWindow = window.open("", "_blank");
+  // Opens a small print window with only the selected section.
+  function printSection(title, elementId) {
+    const content = document.getElementById(elementId).innerHTML;
+    const printWindow = window.open("", "_blank");
 
-      if (!printWindow) {
-        alert("Please allow pop-ups so the PDF window can open.");
-        return;
-      }
-
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <title>${title}</title>
-          <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-        </head>
-        <body>
-          <main class="page-container print-page">
-            <section class="form-card print-card">
-              <h1>${title}</h1>
-              <div class="rendered-output">
-                ${content}
-              </div>
-            </section>
-          </main>
-        </body>
-        </html>
-      `);
-
-      printWindow.document.close();
-      printWindow.focus();
-
-      setTimeout(function() {
-        printWindow.print();
-      }, 300);
+    if (!printWindow) {
+      alert("Please allow pop-ups so the PDF window can open.");
+      return;
     }
-  </script>
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>${title}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+      </head>
+      <body>
+        <main class="page-container print-page">
+          <section class="form-card print-card">
+            <h1>${title}</h1>
+            <div class="rendered-output">
+              ${content}
+            </div>
+          </section>
+        </main>
+      </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(function() {
+      printWindow.print();
+    }, 300);
+  }
+</script>
 </body>
 </html>

@@ -27,6 +27,11 @@ You are LessonForge AI, an assistant that creates educational materials for clas
 Follow these rules:
 
 1. Use the selected learning setting, grade level, subject, topic, material type, difficulty, class time, and instructions.
+1a. Heading and role language must match the selected learning setting.
+- If the learning setting is Classroom, classroom-specific language is allowed, including "Teacher Notes", "students", "class", "classroom", and "Estimated Class Time".
+- If the learning setting is Homeschool, Tutoring, or General / Flexible, do not use "Teacher Notes". Use "Instructor Notes" instead.
+- If the learning setting is Homeschool, Tutoring, or General / Flexible, avoid classroom-only phrasing such as "class", "classroom", and "teacher" unless the user specifically asks for it.
+- Do not use classroom-specific headings for non-classroom settings.
 2. Keep the output practical, clear, age-appropriate, and easy for a teacher to copy and edit.
 3. Do not invent citations or URLs.
 4. Before creating a quiz, test, or homework assignment, define a brief lesson scope showing the key concepts students are expected to know.
@@ -150,6 +155,8 @@ def build_generation_prompt(form_data):
     # Lesson plan-specific prompt instructions.
     # These are only included when the teacher selects "Lesson Plan".
     if material_type == "Lesson Plan":
+        time_label = "Estimated Class Time" if learning_setting == "Classroom" else "Estimated Time"
+        notes_label = "Teacher notes" if learning_setting == "Classroom" else "Instructor notes"
         prompt_sections.extend([
             "Lesson Plan Requirements:",
             f"Estimated Class Time: {form_data.get('lesson_length')}",
@@ -419,6 +426,49 @@ def remove_answer_space_markers(markdown_text):
         markdown_text = markdown_text.replace(marker, "")
 
     return markdown_text
+
+def normalize_setting_headings(markdown_text, learning_setting):
+    """
+    Keeps classroom-specific headings only for Classroom materials.
+    For Homeschool, Tutoring, and General / Flexible, it switches them
+    to neutral instructor language.
+    """
+
+    if learning_setting == "Classroom":
+        return markdown_text
+
+    replacements = {
+        "Teacher Notes": "Instructor Notes",
+        "teacher notes": "instructor notes",
+        "Estimated Class Time": "Estimated Time",
+    }
+
+    for old, new in replacements.items():
+        markdown_text = markdown_text.replace(old, new)
+
+    return markdown_text
+
+def format_student_info_lines(markdown_text):
+    """
+    Converts simple Name/Date blank lines into clean HTML.
+
+    This avoids Markdown treating underscores as formatting and keeps
+    the result page and printed PDF clean.
+    """
+
+    markdown_text = re.sub(
+        r"(?im)^\s*(?:\*\*)?Name:?(?:\*\*)?\s*_+\s*$",
+        '<div class="student-info-line"><strong>Name:</strong> <span class="student-info-blank"></span></div>',
+        markdown_text,
+    )
+
+    markdown_text = re.sub(
+        r"(?im)^\s*(?:\*\*)?Date:?(?:\*\*)?\s*_+\s*$",
+        '<div class="student-info-line"><strong>Date:</strong> <span class="student-info-blank"></span></div>',
+        markdown_text,
+    )
+
+    return markdown_text
 def renumber_student_questions(markdown_text):
     """
     Renumbers top-level student question lines in the raw Markdown.
@@ -574,6 +624,7 @@ def generate():
     # At this point, generated_text may include both the student material
     # and the answer key.
     generated_text = generate_with_gemini(prompt)
+    generated_text = normalize_setting_headings(generated_text, learning_setting)
 
     # Decide whether this material type should support a separate answer key.
     # This will only be True for Quiz, Test, and Homework Assignment.
@@ -596,6 +647,7 @@ def generate():
         teacher_scope_text, student_material_text, answer_key_text = split_assessment_sections(generated_text)
         student_material_text = renumber_student_questions(student_material_text)
         student_material_text = apply_answer_space_markers(student_material_text)
+        student_material_text = format_student_info_lines(student_material_text)
         teacher_scope_text = remove_answer_space_markers(teacher_scope_text)
         answer_key_text = remove_answer_space_markers(answer_key_text)
 
