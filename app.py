@@ -22,11 +22,11 @@ client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 # This controls the overall behavior of the generated educational materials.
 # It keeps outputs practical, teacher-friendly, grade-appropriate, and formatted cleanly.
 SYSTEM_PROMPT = """
-You are LessonForge AI, an assistant that creates classroom-ready educational materials for teachers.
+You are LessonForge AI, an assistant that creates educational materials for classroom, tutoring, homeschool, and flexible learning settings.
 
 Follow these rules:
 
-1. Use the teacher's selected grade level, subject, topic, material type, difficulty, class time, and instructions.
+1. Use the selected learning setting, grade level, subject, topic, material type, difficulty, class time, and instructions.
 2. Keep the output practical, clear, age-appropriate, and easy for a teacher to copy and edit.
 3. Do not invent citations or URLs.
 4. Before creating a quiz, test, or homework assignment, define a brief lesson scope showing the key concepts students are expected to know.
@@ -44,7 +44,37 @@ Follow these rules:
 16. For math formulas, use readable plain text or Unicode formatting such as x = (-b ± √(b² - 4ac)) / 2a.
 17. Do not overuse complex notation for lower grade levels.
 """
+def get_learning_setting_guidance(learning_setting):
+    """
+    Returns short, selected-only guidance for the chosen learning setting.
 
+    This is token-optimized because the prompt only receives the guidance
+    for the selected setting, not every possible setting.
+    """
+
+    setting_guidance = {
+        "Classroom": (
+            "Learning Setting: Classroom. "
+            "Assume one instructor working with a full class. "
+            "Group work, pair activities, class discussion, and classroom timing are appropriate."
+        ),
+        "Tutoring": (
+            "Learning Setting: Tutoring. "
+            "Assume one instructor working with one student or a very small group. "
+            "Prioritize direct explanation, guided practice, checks for understanding, and flexible pacing."
+        ),
+        "Homeschool": (
+            "Learning Setting: Homeschool. "
+            "Assume the material may be used at home with one or a few students and simple materials. "
+            "Avoid full-class group activities unless specifically requested."
+        ),
+        "General / Flexible": (
+            "Learning Setting: General / Flexible. "
+            "Do not assume a classroom, tutoring, or homeschool environment. Keep the material adaptable."
+        ),
+    }
+
+    return setting_guidance.get(learning_setting, "")
 
 def build_generation_prompt(form_data):
     """
@@ -58,10 +88,16 @@ def build_generation_prompt(form_data):
     or discussion questions.
     """
     material_type = form_data.get("material_type")
+    learning_setting = form_data.get("learning_setting")
+    learning_setting_guidance = get_learning_setting_guidance(learning_setting)
+
+
 
     prompt_sections = [
-        "Create the following classroom-ready educational material.",
+        "Create the following educational material.",
         "",
+            learning_setting_guidance,
+
         f"Grade Level: {form_data.get('grade_level')}",
         f"Subject: {form_data.get('subject')}",
         f"Topic: {form_data.get('topic')}",
@@ -109,10 +145,19 @@ def build_generation_prompt(form_data):
                     # Always give the teacher a separate scope/context section.
                     # This helps the teacher understand what students are expected to know.
                     # This section should appear on the results page, but not inside the student PDF.
-                "For quizzes, tests, and homework assignments, always include a teacher-facing lesson scope before the student version.",
-                "Start that section with the exact Markdown heading: ## Teacher Lesson Scope",
-                "The Teacher Lesson Scope should briefly list the concepts, vocabulary, or skills students are expected to know.",
-                "Do not include the Teacher Lesson Scope inside the student version.",
+               "For quizzes, tests, and homework assignments, always include an instructor-facing lesson scope before the student version.",
+"Start that section with the exact Markdown heading: ## Teacher Lesson Scope",
+"Format the Teacher Lesson Scope with clean Markdown subheadings and short paragraphs, not a single flat bullet list.",
+"Use this structure when helpful:",
+"### What Students Should Know",
+"Write 2-4 sentences explaining the main concepts students need before answering the assessment.",
+"### Key Skills",
+"List 3-6 specific skills students will practice or demonstrate.",
+"### Important Vocabulary",
+"Include only the most relevant terms, with brief plain-language explanations.",
+"### Assessment Boundaries",
+"Briefly explain what the assessment will and will not cover so the instructor knows the scope.",
+"Do not include the Teacher Lesson Scope inside the student version.",
 
 # Give the student document a predictable heading.
 # The split helper can use this to separate the student material cleanly.
@@ -217,7 +262,7 @@ def build_generation_prompt(form_data):
     prompt_sections.extend([
         "Output Requirements:",
         "- Start with a brief overview.",
-        "- Then provide the full teacher-ready material.",
+        "- Then provide the full instructor-ready material.",
         "- Use clean Markdown formatting with headings, numbered lists, and bullet points.",
         "- Do not repeat the assignment overview metadata if it is already shown on the results page.",
         "- Do not use LaTeX formatting.",
@@ -407,6 +452,7 @@ def generate():
     topic = request.form.get("topic")
     material_type = request.form.get("material_type")
     difficulty = request.form.get("difficulty")
+    learning_setting = request.form.get("learning_setting")
 
     # Store the original form inputs so the result page can resubmit them
     # if the teacher clicks "Regenerate".
@@ -471,6 +517,7 @@ def generate():
         topic=topic,
         material_type=material_type,
         difficulty=difficulty,
+            learning_setting=learning_setting,
 
         # Original full Gemini response.
         # Useful to keep around for debugging or future full-copy behavior.

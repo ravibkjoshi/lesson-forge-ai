@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+  {% set role_label = "Teacher" if learning_setting == "Classroom" else "Instructor" %}
   <main class="page-container result-page">
     <section class="hero no-print">
       <p class="eyebrow">Generated Material</p>
@@ -28,6 +29,7 @@
           <p><span>Subject</span><strong>{{ subject }}</strong></p>
           <p><span>Type</span><strong>{{ material_type }}</strong></p>
           <p><span>Difficulty</span><strong>{{ difficulty }}</strong></p>
+          <p><span>Learning Setting</span>  <strong>{{ learning_setting }}</strong></p>
         </div>
       </div>
 
@@ -35,7 +37,7 @@
         {% if has_answer_key_document and answer_key_text %}
         {% if teacher_scope_text %}
   <button class="button-secondary" type="button" onclick="copyTextById('teacherScopeText')">
-    Copy Teacher Scope
+    Copy {{ role_label }} Scope
   </button>
 {% endif %}  
         <button class="button-primary" type="button" onclick="copyTextById('studentMaterialText')">
@@ -78,8 +80,8 @@
     <div class="teacher-scope-panel no-print">
       <div class="output-header">
         <div>
-          <p class="section-label">Teacher Context</p>
-          <h2>Teacher Lesson Scope</h2>
+         <p class="section-label">{{ role_label }} Context</p>
+<h2>{{ role_label }} Lesson Scope</h2>
         </div>
       </div>
 
@@ -111,8 +113,7 @@
           <div class="answer-key-preview no-print">
             <div class="output-header">
               <div>
-                <p class="section-label">Teacher Copy</p>
-                <h2>Answer Key</h2>
+<p class="section-label">{{ role_label }} Copy</p>                <h2>Answer Key</h2>
               </div>
             </div>
 
