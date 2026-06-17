@@ -1,33 +1,34 @@
 # LessonForge AI
 
-LessonForge AI is a Flask-based web app that helps instructors, tutors, and homeschool parents generate classroom-ready and learning-ready educational materials using Google Gemini.
+LessonForge AI is a Flask-based web app that helps instructors, tutors, and homeschool parents generate editable, printable educational materials using Google Gemini.
 
-Users can select an audience type, grade level, subject, topic, difficulty, material type, and optional instructions. The app then generates structured educational materials such as lesson plans, quizzes, tests, homework assignments, study guides, discussion questions, and class activities.
+Users can select a learning setting, grade level, subject, topic, difficulty, material type, and optional instructions. The app then generates structured educational materials such as lesson plans, quizzes, tests, homework assignments, study guides, discussion questions, and learning activities.
 
 The goal of this MVP is to create a simple, practical tool that turns structured educational inputs into editable, printable learning materials.
 
 ## Features
 
 * Generate educational materials from a structured form
-* Audience-aware generation for:
+* Learning-setting-aware generation for:
 
-  * Instructors
-  * Tutors
-  * Homeschool parents
+  * Classroom instruction
+  * Tutoring
+  * Homeschool learning
+  * General / flexible use cases
 * Dynamic form sections based on selected material type
-* Frontend options adjust based on selected audience
+* Frontend options adjust based on selected material type and learning setting
 * Conditional backend prompt logic to reduce unnecessary prompt bloat
 * Google Gemini-powered content generation
 * Markdown rendering for clean generated output
 * Copy-to-clipboard actions for generated materials
+* Regenerate option using the original form selections
 * Browser-based PDF/print workflow
-* Separate student-facing and instructor-facing assessment output
+* Separate student-facing and educator-facing assessment output
 * Lesson Scope section for quizzes, tests, and homework assignments
 * Student Version and Answer Key separation
 * Printable answer spaces for student assessments
 
   * Lined space for short answer responses
-  * Larger lined space for essay responses
   * Blank workspace for math, science, and problem-solving questions
 * Responsive HTML/CSS interface
 
@@ -41,40 +42,44 @@ LessonForge AI currently supports:
 * Homework assignments
 * Study guides
 * Discussion questions
-* Class activities
+* Learning activities
 
 ## Assessment Output Flow
 
 For quizzes, tests, and homework assignments, LessonForge AI separates the output into three sections:
 
 1. **Lesson Scope**
-   Gives the instructor, tutor, or homeschool parent context about what students are expected to know before completing the assessment.
+   Gives the educator context about what students are expected to know before completing the assessment.
 
 2. **Student Version**
    Student-facing questions or assignment content, without answers.
 
 3. **Answer Key**
-   Instructor-facing answers, explanations, or grading guidance.
+   Educator-facing answers, explanations, or grading guidance.
 
-This keeps printable student materials clean while still giving the educator useful context and answer support.
+This keeps printable student materials clean while still giving the instructor, tutor, homeschool parent, or learning facilitator useful context and answer support.
 
-## Audience-Aware Generation
+## Learning-Setting-Aware Generation
 
-The app supports different educational use cases through an audience selector.
+The app supports different educational use cases through a learning setting selector.
 
-### Instructor
+### Classroom
 
-Uses classroom-oriented language and supports classroom-style materials, group activities, and traditional instructional workflows.
+Uses classroom-oriented language and supports classroom-style materials, group activities, class discussion, and traditional instructional workflows.
 
-### Tutor
+### Tutoring
 
-Uses language better suited for one-on-one or small-group instruction.
+Uses language better suited for one-on-one or small-group instruction, with an emphasis on guided practice, checks for understanding, and flexible pacing.
 
-### Homeschool Parent
+### Homeschool
 
 Uses home-friendly language, simpler materials, and avoids unnecessary classroom assumptions when possible.
 
-The prompt instructions are conditionally added based on the selected audience instead of sending one large generic prompt every time. This keeps the prompts more focused and helps reduce unnecessary token usage.
+### General / Flexible
+
+Keeps the material adaptable without assuming a classroom, tutoring, or homeschool environment.
+
+The prompt instructions are conditionally added based on the selected learning setting instead of sending one large generic prompt every time. This keeps the prompts more focused and helps reduce unnecessary token usage.
 
 ## Tech Stack
 
@@ -97,7 +102,7 @@ It shows:
 * Creating dynamic forms with HTML and JavaScript
 * Passing form data from the frontend to a Flask backend
 * Building conditional prompts based on user selections
-* Optimizing prompt logic by material type and audience
+* Optimizing prompt logic by material type and learning setting
 * Calling the Google Gemini API from Python
 * Rendering AI-generated Markdown as HTML
 * Splitting AI output into separate educator and student sections
@@ -123,15 +128,15 @@ lesson-forge-ai/
 ## How It Works
 
 1. A user fills out the form on the homepage.
-2. The user selects an audience, grade level, subject, topic, difficulty, and material type.
-3. The frontend shows or hides fields based on the selected material type and audience.
+2. The user selects a learning setting, grade level, subject, topic, difficulty, and material type.
+3. The frontend shows or hides fields based on the selected material type and learning setting.
 4. Flask receives the submitted form data.
 5. Flask builds a structured prompt based on the selected inputs.
 6. The app sends the prompt to Google Gemini.
 7. Gemini returns educational content in Markdown.
 8. Flask splits assessment output into lesson scope, student version, and answer key when needed.
 9. The app converts the Markdown response into formatted HTML.
-10. The user can copy the content or save printable sections as PDFs.
+10. The user can copy the content, regenerate the material, or save printable sections as PDFs.
 
 ## Setup Instructions
 
@@ -218,10 +223,10 @@ This public MVP uses Gemini directly from the Flask backend.
 It does not currently use Tavily, LangChain, PostgreSQL, SQLAlchemy, user accounts, or saved materials. That is intentional for the public MVP. The goal is to keep the app lightweight and focus on the core workflow:
 
 ```text
-Structured input → AI generation → formatted educational material → copy or PDF export
+Structured input → AI generation → formatted educational material → copy, regenerate, or PDF export
 ```
 
-Future versions may add source-grounded generation, saved material libraries, user accounts, and database persistence after the repository is made private.
+Future versions may add source-grounded generation, saved material libraries, user accounts, and database persistence.
 
 ## Current Limitations
 
@@ -230,7 +235,7 @@ Future versions may add source-grounded generation, saved material libraries, us
 * Browser print settings may add headers or footers unless disabled in the print dialog.
 * Generated content is not currently saved to a database.
 * There are no user accounts or saved libraries yet.
-* Source-grounded generation with Tavily and LangChain is planned for a later private-repo version.
+* Source-grounded generation with Tavily and LangChain is planned for a later version.
 
 ## Future Improvements
 
@@ -248,6 +253,7 @@ Planned next steps:
 * Add editable generated content before export
 * Add downloadable `.docx` support
 * Add stronger standards alignment options
+* Add feedback options such as like, dislike, or regenerate tracking
 
 ## Why I Built This
 
@@ -257,4 +263,4 @@ This project combines backend development, frontend form logic, API integration,
 
 ## Disclaimer
 
-LessonForge AI is intended to help instructors, tutors, and homeschool parents quickly draft educational materials. Generated content should be reviewed and edited before being used with students, especially for factual accuracy, grade-level fit, accessibility, and institution-specific requirements.
+LessonForge AI is intended to help instructors, tutors, homeschool parents, and learning facilitators quickly draft educational materials. Generated content should be reviewed and edited before being used with students, especially for factual accuracy, grade-level fit, accessibility, and institution-specific requirements.
