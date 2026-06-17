@@ -34,8 +34,7 @@ Follow these rules:
 6. For quizzes, tests, and homework assignments, include answer keys when requested.
 7. For multiple choice questions, provide four answer choices labeled A-D and only one correct answer.
 8. For essay questions, make sure students could reasonably answer using the lesson scope.
-9. For class activities, follow the selected materials preference. If materials are needed, keep them simple, low-cost, and easy to access.
-10. Do not include unnecessary explanation about how you generated the material.
+9. For learning activities, follow the selected learning setting and materials preference. If materials are needed, keep them simple, low-cost, and easy to access.10. Do not include unnecessary explanation about how you generated the material.
 11. Use clean Markdown formatting with headings, numbered lists, and bullet points.
 12. Do not use LaTeX math formatting.
 13. Do not wrap formulas or equations in dollar signs.
@@ -43,6 +42,12 @@ Follow these rules:
 15. For chemical formulas and equations, use readable Unicode/plain text formatting such as H₂O, CO₂, NaCl, and 2H₂ + O₂ → 2H₂O.
 16. For math formulas, use readable plain text or Unicode formatting such as x = (-b ± √(b² - 4ac)) / 2a.
 17. Do not overuse complex notation for lower grade levels.
+18. Return only the final polished material.
+19. Never include drafting notes, hidden reasoning, self-corrections, failed attempts, revision commentary, or internal checking.
+20. Never include phrases such as "Let's try again", "I need to be more careful", "This works", "I'll update", "Target solution", "Check with", "Revised Q", or comments about multiple answers being correct.
+21. If you need to verify an answer, do that silently. Do not show the verification process.
+22. Do not include revised versions, discarded versions, or notes about improving a question. Only include the final version.
+
 """
 def get_learning_setting_guidance(learning_setting):
     """
@@ -196,18 +201,24 @@ def build_generation_prompt(form_data):
 # Give the student document a predictable heading.
 # The split helper can use this to separate the student material cleanly.
 "Start the student-facing material with the exact Markdown heading: ## Student Version",
+
+"Student Question Numbering:",
+"Use one continuous numbered list for all student questions.",
+"Do not restart question numbering after answer-space markers.",
+"Do not create a new numbered list for each question.",
+"Question numbers must continue sequentially from the first question to the last question.",
+"Do not restart at 1 unless it is a completely new section.",
+
 *get_answer_space_instructions(subject),
 # Printable student response spaces.
 # This only affects the student version, not the teacher scope or answer key.
 "Student Version Formatting:",
-"Add printable answer space in the student version only for short answer, essay, and math/problem-solving questions.",
-"Do not add answer spaces in the Teacher Lesson Scope or Answer Key.",
-"Do not add answer spaces after multiple choice questions.",
-"Put each answer-space HTML block on its own line with a blank line before and after it.",
-'For short answer questions, place this exact HTML after the question: <div class="answer-space short-answer-space"></div>',
-'For essay questions, place this exact HTML after the question: <div class="answer-space essay-space"></div>',
-'For math or calculation questions that require work, place this exact HTML after the question: <div class="answer-space work-space"></div>',
-"When repeating questions in the answer key, do not include or repeat any answer-space HTML.",
+"Student Version Formatting:",
+"Use the answer-space markers exactly as instructed.",
+"Do not add answer-space markers after multiple choice questions.",
+"Do not add answer-space markers in the Teacher Lesson Scope or Answer Key.",
+"Keep all student questions in one continuous numbered sequence.",
+"When repeating questions in the answer key, do not include or repeat any answer-space markers.",
 
             # Keep questions fair and limited to the selected topic, grade level, and teacher instructions.
             "Only write questions that are answerable from the selected topic, grade level, and teacher instructions.",
@@ -215,7 +226,9 @@ def build_generation_prompt(form_data):
 
             # Keep multiple choice formatting consistent.
             "If multiple choice questions are requested, each question must have A-D answer choices and one correct answer.",
-
+            "For multiple choice questions, silently verify that only one answer choice is correct before finalizing the output.",
+            "Do not show your verification, scratch work, failed attempts, corrections, or revision process.",
+            "Only include the final student question and the final answer key.",
             # Essay handling, if essay questions are still allowed.
             "If essay questions are requested, include a suggested answer or grading guidance when answer keys are requested.",
 
@@ -262,22 +275,22 @@ def build_generation_prompt(form_data):
             "",
         ])
 
-    # Class activity-specific prompt instructions.
-    # These help Gemini create structured classroom games, simulations,
-    # group activities, debates, role plays, or hands-on activities.
-    if material_type == "Class Activity":
+    # Learning activity-specific prompt instructions.
+    # These help Gemini create structured guided practice, games, simulations,
+    # debates, role plays, discussions, or hands-on activities.
+    if material_type == "Learning Activity":
         prompt_sections.extend([
-            "Class Activity Requirements:",
-            f"Estimated Class Time: {form_data.get('lesson_length')}",
-            f"Activity Style: {form_data.get('activity_style')}",
-            f"Materials Preference: {form_data.get('materials_preference')}",
-            f"Activity Goal: {form_data.get('activity_goal') or 'Generate an appropriate activity goal based on the topic.'}",
-            f"Include Reflection Questions: {form_data.get('include_reflection')}",
-            "",
-            "Format the activity with sections for overview, learning objective, time needed, materials needed, teacher setup, step-by-step activity instructions, student instructions, discussion/reflection questions if requested, and a quick assessment or exit ticket.",
-            "Generate the materials needed yourself. Keep them simple, low-cost, and easy for teachers to procure.",
-            "",
-        ])
+        "Learning Activity Requirements:",
+        f"Estimated Time: {form_data.get('lesson_length')}",
+        f"Materials Preference: {form_data.get('materials_preference')}",
+        f"Activity Goal: {form_data.get('activity_goal') or 'Generate an appropriate activity goal based on the topic.'}",
+        f"Include Reflection Questions: {form_data.get('include_reflection')}",
+        "",
+        "Format the activity with sections for overview, learning objective, time needed, materials needed, setup, step-by-step activity instructions, student instructions, reflection questions if requested, and a quick check for understanding.",
+        "Follow the selected learning setting. Do not assume a full classroom unless the learning setting is Classroom.",
+        "Follow the selected materials preference. Keep materials simple, low-cost, safe, and easy to access.",
+        "",
+    ])
 
     # Discussion-specific prompt instructions.
     # These are only included when the teacher selects "Discussion Questions".
@@ -406,7 +419,66 @@ def remove_answer_space_markers(markdown_text):
         markdown_text = markdown_text.replace(marker, "")
 
     return markdown_text
+def renumber_student_questions(markdown_text):
+    """
+    Renumbers top-level student question lines in the raw Markdown.
 
+    This keeps the copied student text correct even if Gemini restarts
+    numbering after an answer-space marker.
+    """
+
+    question_number = 1
+
+    def replace_question_number(match):
+        nonlocal question_number
+        indentation = match.group(1)
+        question_text = match.group(3).strip()
+        new_line = f"{indentation}{question_number}. {question_text}"
+        question_number += 1
+        return new_line
+
+    return re.sub(
+        r"(?m)^([ \t]{0,3})(\d+)\.\s+(.+)$",
+        replace_question_number,
+        markdown_text,
+    )
+    
+
+def fix_ordered_list_start_numbers(html_text):
+    """
+    Fixes browser-visible numbering after Markdown is converted to HTML.
+
+    Python-Markdown can create a new <ol> after each answer-space <div>.
+    A new <ol> starts at 1 in the browser, even when the raw Markdown text
+    has already been renumbered. This function sets the correct start value
+    on each ordered list in the student version.
+    """
+
+    next_number = 1
+
+    def replace_ordered_list(match):
+        nonlocal next_number
+
+        opening_tag = match.group(1)
+        list_contents = match.group(2)
+        list_item_count = len(re.findall(r"<li\b", list_contents))
+
+        if list_item_count == 0:
+            return match.group(0)
+
+        start_number = next_number
+        next_number += list_item_count
+
+        opening_tag = re.sub(r"\s+start=['\"]\d+['\"]", "", opening_tag)
+
+        return f'{opening_tag} start="{start_number}">{list_contents}</ol>'
+
+    return re.sub(
+        r"(<ol\b[^>]*)>(.*?)</ol>",
+        replace_ordered_list,
+        html_text,
+        flags=re.DOTALL,
+    )
 def split_assessment_sections(markdown_text):
     """
     Splits Gemini's generated Markdown into three separate pieces:
@@ -521,10 +593,11 @@ def generate():
     # 1. student_material_text: everything before "## Answer Key"
     # 2. answer_key_text: "## Answer Key" and everything after it
     if has_answer_key_document:
-          teacher_scope_text, student_material_text, answer_key_text = split_assessment_sections(generated_text)
-    student_material_text = apply_answer_space_markers(student_material_text)
-    teacher_scope_text = remove_answer_space_markers(teacher_scope_text)
-    answer_key_text = remove_answer_space_markers(answer_key_text)
+        teacher_scope_text, student_material_text, answer_key_text = split_assessment_sections(generated_text)
+        student_material_text = renumber_student_questions(student_material_text)
+        student_material_text = apply_answer_space_markers(student_material_text)
+        teacher_scope_text = remove_answer_space_markers(teacher_scope_text)
+        answer_key_text = remove_answer_space_markers(answer_key_text)
 
     # Convert the student-facing Markdown into HTML for the main result display.
     # For assessments, this should no longer include the answer key.
@@ -533,6 +606,10 @@ def generate():
         student_material_text,
         extensions=["extra", "nl2br"]
     )
+   
+    if has_answer_key_document:
+        generated_html = fix_ordered_list_start_numbers(generated_html)
+
     
     teacher_scope_html = markdown.markdown(
     teacher_scope_text,
