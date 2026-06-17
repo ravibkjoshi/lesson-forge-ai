@@ -234,7 +234,7 @@ Future versions may add source-grounded generation, saved material libraries, us
 
 ## Future Improvements
 
-Planned next steps after the public MVP:
+Planned next steps:
 
 * Switch the repository private before database and user-account work
 * Add optional source-grounded generation using Tavily
