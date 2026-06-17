@@ -1,34 +1,51 @@
 # LessonForge AI
 
-LessonForge AI is a Flask-based web app that helps instructors, tutors, and homeschool parents generate editable, printable educational materials using Google Gemini.
+LessonForge AI is a Flask-based web app that helps instructors, tutors, and homeschool parents generate classroom-ready and learning-ready educational materials using Google Gemini.
 
 Users can select a learning setting, grade level, subject, topic, difficulty, material type, and optional instructions. The app then generates structured educational materials such as lesson plans, quizzes, tests, homework assignments, study guides, discussion questions, and learning activities.
 
 The goal of this MVP is to create a simple, practical tool that turns structured educational inputs into editable, printable learning materials.
 
+## Demo
+
+### Form flow
+
+Shows the guided input workflow for selecting the learning setting, grade level, subject, topic, material type, and style preferences.
+
+![Form flow](static/assets/form-input.gif)
+
+### Generated assessment output
+
+Shows the generated quiz output, including the assignment overview, educator context, student version, and answer key sections.
+
+![Generated assessment output](static/assets/generated-results.gif)
+
+### Copy and PDF workflow
+
+Shows how users can copy sections or save clean printable PDFs from the generated material page.
+
+![Copy and PDF workflow](static/assets/copy-print-workflow.gif)
+
 ## Features
 
 * Generate educational materials from a structured form
 * Learning-setting-aware generation for:
-
   * Classroom instruction
   * Tutoring
   * Homeschool learning
-  * General / flexible use cases
 * Dynamic form sections based on selected material type
-* Frontend options adjust based on selected material type and learning setting
+* Frontend options adjust based on selected learning setting
 * Conditional backend prompt logic to reduce unnecessary prompt bloat
 * Google Gemini-powered content generation
 * Markdown rendering for clean generated output
 * Copy-to-clipboard actions for generated materials
-* Regenerate option using the original form selections
 * Browser-based PDF/print workflow
 * Separate student-facing and educator-facing assessment output
 * Lesson Scope section for quizzes, tests, and homework assignments
 * Student Version and Answer Key separation
-* Printable answer spaces for student assessments
-
+* Printable answer spaces for student assessments:
   * Lined space for short answer responses
+  * Larger lined space for essay-style responses when needed
   * Blank workspace for math, science, and problem-solving questions
 * Responsive HTML/CSS interface
 
@@ -48,16 +65,16 @@ LessonForge AI currently supports:
 
 For quizzes, tests, and homework assignments, LessonForge AI separates the output into three sections:
 
-1. **Lesson Scope**
-   Gives the educator context about what students are expected to know before completing the assessment.
+1. **Lesson Scope**  
+   Gives the instructor, tutor, or homeschool parent context about what students are expected to know before completing the assessment.
 
-2. **Student Version**
+2. **Student Version**  
    Student-facing questions or assignment content, without answers.
 
-3. **Answer Key**
+3. **Answer Key**  
    Educator-facing answers, explanations, or grading guidance.
 
-This keeps printable student materials clean while still giving the instructor, tutor, homeschool parent, or learning facilitator useful context and answer support.
+This keeps printable student materials clean while still giving the educator useful context and answer support.
 
 ## Learning-Setting-Aware Generation
 
@@ -65,19 +82,15 @@ The app supports different educational use cases through a learning setting sele
 
 ### Classroom
 
-Uses classroom-oriented language and supports classroom-style materials, group activities, class discussion, and traditional instructional workflows.
+Uses classroom-oriented language and supports classroom-style materials, group activities, and traditional instructional workflows.
 
 ### Tutoring
 
-Uses language better suited for one-on-one or small-group instruction, with an emphasis on guided practice, checks for understanding, and flexible pacing.
+Uses language better suited for one-on-one or small-group instruction.
 
 ### Homeschool
 
 Uses home-friendly language, simpler materials, and avoids unnecessary classroom assumptions when possible.
-
-### General / Flexible
-
-Keeps the material adaptable without assuming a classroom, tutoring, or homeschool environment.
 
 The prompt instructions are conditionally added based on the selected learning setting instead of sending one large generic prompt every time. This keeps the prompts more focused and helps reduce unnecessary token usage.
 
@@ -118,11 +131,17 @@ lesson-forge-ai/
 ├── app.py
 ├── requirements.txt
 ├── .gitignore
+├── LICENSE
+├── README.MD
 ├── templates/
 │   ├── index.html
 │   └── result.html
 └── static/
-    └── styles.css
+    ├── styles.css
+    └── assets/
+        ├── form-input.gif
+        ├── generated-results.gif
+        └── copy-print-workflow.gif
 ```
 
 ## How It Works
@@ -136,7 +155,7 @@ lesson-forge-ai/
 7. Gemini returns educational content in Markdown.
 8. Flask splits assessment output into lesson scope, student version, and answer key when needed.
 9. The app converts the Markdown response into formatted HTML.
-10. The user can copy the content, regenerate the material, or save printable sections as PDFs.
+10. The user can copy the content or save printable sections as PDFs.
 
 ## Setup Instructions
 
@@ -218,12 +237,12 @@ markdown
 
 ## MVP Notes
 
-This public MVP uses Gemini directly from the Flask backend.
+This MVP uses Gemini directly from the Flask backend.
 
-It does not currently use Tavily, LangChain, PostgreSQL, SQLAlchemy, user accounts, or saved materials. That is intentional for MVP. The goal is to keep the app lightweight and focus on the core workflow:
+It does not currently use Tavily, LangChain, PostgreSQL, SQLAlchemy, user accounts, or saved materials. That is intentional for the MVP. The goal is to keep the app lightweight and focus on the core workflow:
 
 ```text
-Structured input → AI generation → formatted educational material → copy, regenerate, or PDF export
+Structured input → AI generation → formatted educational material → copy or PDF export
 ```
 
 Future versions may add source-grounded generation, saved material libraries, user accounts, and database persistence.
@@ -235,7 +254,7 @@ Future versions may add source-grounded generation, saved material libraries, us
 * Browser print settings may add headers or footers unless disabled in the print dialog.
 * Generated content is not currently saved to a database.
 * There are no user accounts or saved libraries yet.
-* Source-grounded generation with Tavily and LangChain is planned for a later version.
+* Source-grounded generation is not included in the current MVP.
 
 ## Future Improvements
 
@@ -253,7 +272,8 @@ Planned next steps:
 * Add editable generated content before export
 * Add downloadable `.docx` support
 * Add stronger standards alignment options
-* Add feedback options such as like, dislike, or regenerate tracking
+* Add a writing assignment material type
+* Add output feedback or regenerate controls for future personalization
 
 ## Why I Built This
 
@@ -263,4 +283,8 @@ This project combines backend development, frontend form logic, API integration,
 
 ## Disclaimer
 
-LessonForge AI is intended to help instructors, tutors, homeschool parents, and learning facilitators quickly draft educational materials. Generated content should be reviewed and edited before being used with students, especially for factual accuracy, grade-level fit, accessibility, and institution-specific requirements.
+LessonForge AI is intended to help instructors, tutors, and homeschool parents quickly draft educational materials. Generated content should be reviewed and edited before being used with students, especially for factual accuracy, grade-level fit, accessibility, and institution-specific requirements.
+
+## License
+
+This project is licensed under the MIT License.
