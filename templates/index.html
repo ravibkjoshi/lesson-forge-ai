@@ -190,7 +190,6 @@ These fields help structure a complete instructor-ready lesson plan.            
     <label for="question_type">Question Type</label>
     <select id="question_type" name="question_type">
       <option value="Multiple Choice">Multiple Choice</option>
-      <option id="essay-question-option" value="Essay Questions">Essay Questions</option>
       <option value="Short Answer">Short Answer</option>
       <option value="Mixed">Mixed</option>
     </select>
@@ -208,17 +207,7 @@ These fields help structure a complete instructor-ready lesson plan.            
     />
   </div>
 
-  <div class="field essay-question-count" id="essay-count-wrapper">
-    <label for="essay_count">Number of Essay Questions</label>
-    <input
-      type="number"
-      id="essay_count"
-      name="essay_count"
-      min="0"
-      max="20"
-      value="2"
-    />
-  </div>
+  
 
   <div class="field short-answer-count">
     <label for="short_answer_count">Number of Short Answer Questions</label>
@@ -249,8 +238,7 @@ These fields help structure a complete instructor-ready lesson plan.            
   </div>
 </div>
 </div>
-
-<!-- Learning activity options: only visible for Learning Activity -->
+<div class="form-section dynamic-section" id="assessment-fields"></div>
          
 <!-- Learning activity options: only visible for Learning Activity -->        <div class="form-section dynamic-section" id="activity-fields">
           <div class="section-header">
@@ -393,9 +381,6 @@ Use this section for guided practice, games, simulations, role plays, debates, d
   const economicsOption = document.getElementById("economics-option");
   const computerScienceOption = document.getElementById("computer-science-option");
   const questionTypeSelect = document.getElementById("question_type");
-  const essayQuestionOption = document.getElementById("essay-question-option");
-  const essayCountInput = document.getElementById("essay_count");
-  const essayCountWrapper = document.getElementById("essay-count-wrapper");
   const styleStepPill = document.getElementById("style-step-pill");
 
   const mcQuestionCount = document.querySelector(".mc-question-count");
@@ -438,7 +423,6 @@ Use this section for guided practice, games, simulations, role plays, debates, d
     const selectedType = questionTypeSelect.value;
 
     mcQuestionCount.style.display = "none";
-    essayCountWrapper.style.display = "none";
     shortAnswerCount.style.display = "none";
 
     if (selectedType === "Multiple Choice") {
@@ -459,23 +443,7 @@ Use this section for guided practice, games, simulations, role plays, debates, d
     }
   }
 
-  function toggleEssayOption() {
-    const subject = subjectSelect.value;
 
-    if (subject === "Science" || subject === "Math") {
-      essayQuestionOption.style.display = "none";
-
-      if (questionTypeSelect.value === "Essay Questions") {
-        questionTypeSelect.value = "Short Answer";
-      }
-
-      essayCountInput.value = 0;
-    } else {
-      essayQuestionOption.style.display = "block";
-    }
-
-    updateQuestionCountFields();
-  }
 
   function toggleFormSections() {
     const materialType = materialTypeSelect.value;
@@ -514,15 +482,14 @@ Use this section for guided practice, games, simulations, role plays, debates, d
 
     styleStepPill.textContent = hasDynamicStep ? "3" : "2";
   }
-
+  subjectSelect.addEventListener("change", updateSubjectOptions);
   materialTypeSelect.addEventListener("change", toggleFormSections);
-  subjectSelect.addEventListener("change", toggleEssayOption);
   gradeLevelSelect.addEventListener("change", updateSubjectOptions);
   questionTypeSelect.addEventListener("change", updateQuestionCountFields);
 
   toggleFormSections();
   updateSubjectOptions();
-  toggleEssayOption();
+
   updateQuestionCountFields();
 </script>
 </body>
