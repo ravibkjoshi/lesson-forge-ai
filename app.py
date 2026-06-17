@@ -502,6 +502,6 @@ def generate():
 
 if __name__ == "__main__":
     # Run the Flask development server locally.
-    # This is for local development only, not production hosting.
+    # This is for local development only, not production hosting. Reminds the developer where to access the app in the browser.
     print("Open LessonForge AI at: http://localhost:5050")
     app.run(debug=True, host="127.0.0.1", port=5050)
