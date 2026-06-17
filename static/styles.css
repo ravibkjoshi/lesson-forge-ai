@@ -758,3 +758,28 @@ button:active {
     page-break-inside: avoid;
   }
 }
+
+/* Cleaner spacing for assessment settings */
+.assessment-setting {
+  margin-top: 10px;
+}
+
+/* Keep answer key and explanations visually grouped */
+#assessment-fields .form-grid {
+  row-gap: 22px;
+}
+
+/* Give each form card clearer separation */
+.material-form {
+  gap: 32px;
+}
+
+/* Make dynamic sections feel like separate cards */
+.dynamic-section {
+  background: #ffffff;
+}
+
+/* Prevent sections from visually bleeding into each other */
+.form-section {
+  overflow: visible;
+}
